@@ -1,0 +1,110 @@
+package br.com.imovelhunter.imovelhunterwebmobile;
+
+import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import java.nio.charset.Charset;
+
+import br.com.imovelhunter.dominio.Anunciante;
+import br.com.imovelhunter.dominio.Cliente;
+import br.com.imovelhunter.enums.ParametrosSessao;
+import br.com.imovelhunter.listeners.OnFinishTask;
+import br.com.imovelhunter.tasks.TaskLogar;
+import br.com.imovelhunter.util.SessionUtil;
+
+
+public class LoginActivity extends ActionBarActivity implements OnFinishTask {
+
+    private EditText editTextLogin;
+    private EditText editTextSenha;
+    private Button buttonLogar;
+
+    private ProgressDialog progress;
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        ActionBar bar = getActionBar();
+        bar.hide();
+        if (bar != null) {
+            bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
+        }
+
+        this.progress = new ProgressDialog(this);
+        this.progress.setIcon(R.drawable.imovelhunterimgicone);
+        this.progress.setMessage("Processando");
+
+        this.editTextLogin = (EditText)this.findViewById(R.id.editTextLogin);
+        this.editTextSenha = (EditText)this.findViewById(R.id.editTextSenha);
+
+        this.buttonLogar = (Button)this.findViewById(R.id.buttonLogar);
+        this.buttonLogar.setOnClickListener(this.cliqueBotaoLogar);
+
+    }
+
+    private View.OnClickListener cliqueBotaoLogar = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            progress.show();
+            new TaskLogar(1,LoginActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB),SessionUtil.getObject(ParametrosSessao.GCM),SessionUtil.getObject(ParametrosSessao.SERIAL),editTextLogin.getText().toString(),editTextSenha.getText().toString());
+        }
+    };
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        //getMenuInflater().inflate(R.menu.login, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void finish(int requestCode, int responseCode, Object data) {
+        if(requestCode == 1){
+            if(responseCode == 0){
+                Toast.makeText(this,"Erro ao fazer o login",Toast.LENGTH_LONG).show();
+            }else if(responseCode == 1){
+                if(data != null) {
+                    SessionUtil.setObject(ParametrosSessao.USUARIO_LOGADO, data);
+                    setResult(1);
+                    finish();
+                }else{
+                    Toast.makeText(this,"Usuário não encontrado",Toast.LENGTH_LONG).show();
+                }
+            }else if(responseCode == 2){
+                String mensagem = (String)data;
+                Charset.forName("UTF-8").encode(mensagem);
+                Toast.makeText(this, mensagem, Toast.LENGTH_LONG).show();
+            }
+        }
+        progress.dismiss();
+    }
+}

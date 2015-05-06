@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IMOVEL HUNTER</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_detalhe_imovel">DetalheImovelActivity</string>
+    <string name="seta_direita"><![CDATA[>>>>]]></string>
+    <string name="seta_esquerda"><![CDATA[<<<<]]></string>
+    <string name="descricao">Acesse o ImovelHunter Mobile e tenha acesso aos seus anuncios e fale diretamente com possiveis compradores</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_cadastro_cliente">CadastroClienteActivity</string>
+
+    <string-array name="valores_aluguel">
+        <item>Qualquer valor...</item>
+        <item>Ate R$ 1000</item>
+        <item>De R$ 1001 a R$ 1500</item>
+        <item>De R$ 1501 a R$ 2000</item>
+        <item>De R$ 2001 a R$ 2500</item>
+        <item>De R$ 2501 a R$ 3000</item>
+        <item>De R$ 3001 a R$ 5000</item>
+        <item>Acima de R$ 5000</item>
+    </string-array>
+    <string-array name="valores_vendas">
+        <item>Qualquer valor...</item>
+        <item>Ate R$ 135 mil</item>
+        <item>De R$ 136 mil a R$ 250 mil</item>
+        <item>De R$ 251 mil a R$ 350</item>
+        <item>De R$ 350 mil a R$ 500 mil</item>
+        <item>De R$ 501 mil a R$ 700 mil</item>
+        <item>De R$ 701 mil a R$ 1 milhão</item>
+        <item>Acima de R$ 1 milhão</item>
+    </string-array>
+    <string-array name="tipo_imovel">
+        <item>Todos os tipos...</item>
+        <item>CASA</item>
+        <item>APARTAMENTO</item>
+        <item>APARTAMENTO_DUPLEX</item>
+        <item>TERRENO</item>
+        <item>AREA</item>
+        <item>BARRACO</item>
+        <item>CHACARA</item>
+        <item>COBERTURA</item>
+        <item>FLAT</item>
+        <item>GALPAO</item>
+        <item>KITNET</item>
+        <item>LOFT</item>
+        <item>PREDIO</item>
+        <item>SALA</item>
+        <item>SALAO</item>
+        <item>SITIO</item>
+    </string-array>
+    <string-array name="qtd_quartos">
+        <item>Todos...</item>
+        <item>1 quarto</item>
+        <item>2 quartos</item>
+        <item>3 quartos</item>
+        <item>4 quartos</item>
+        <item>5 ou mais quartos</item>
+    </string-array>
+
+    <string name="title_activity_filtro_imovel">FiltroImovelActivity</string>
+    <string name="title_activity_filtro">FiltroActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_chat">ChatActivity</string>
+
+</resources>

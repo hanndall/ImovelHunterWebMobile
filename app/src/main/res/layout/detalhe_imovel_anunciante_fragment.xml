@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+
+    android:weightSum="1"
+    android:background="@drawable/background">
+
+
+    <ScrollView
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+
+
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+            <ImageView
+                android:src="@drawable/imovelhunterlogo"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView"
+
+                />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Sem imagens disponíveis"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:id="@+id/textViewSemImagens"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="#fff"
+                        android:id="@+id/button_esquerda"
+                        android:text="@string/seta_esquerda"
+                        android:layout_weight="1" />
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="#fff"
+                        android:id="@+id/button_direita"
+                        android:text="@string/seta_direita"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:layout_weight="2"
+                android:background="#2C539E"
+
+                android:layout_width="fill_parent"
+                android:layout_height="0dp">
+
+                <TextView
+                    android:textSize="25dp"
+                    android:textColor="#fff"
+                    android:text="Rua Teste da Silva,"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewEndereco" />
+
+                <TextView
+                    android:textSize="25dp"
+                    android:textColor="#fff"
+                    android:text="45"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewNumero" />
+
+
+
+
+
+
+
+
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:background="#2C539E"
+
+                android:layout_width="fill_parent"
+                android:layout_height="0dp">
+
+                <TextView
+                    android:textSize="15dp"
+                    android:textColor="#fff"
+                    android:text="Boa viagem, "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewBairro" />
+
+                <TextView
+                    android:textSize="15dp"
+                    android:textColor="#fff"
+                    android:text="Recife, "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewCidade" />
+
+
+                <TextView
+
+
+                    android:textSize="15dp"
+                    android:textColor="#fff"
+                    android:text="Preço :4558,00,"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewPreco" />
+
+
+
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <TextView
+
+
+                android:textSize="17dp"
+                android:textColor="#fff"
+                android:text="3 Quartos| "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textViewQuartos" />
+
+            <TextView
+
+
+                android:textSize="17dp"
+                android:textColor="#fff"
+                android:text="2 Suites| "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/textViewSuites" />
+
+            <TextView
+
+
+                android:textSize="17dp"
+                android:textColor="#fff"
+                android:text="4524 M², "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:id="@+id/textViewMetrosCubicos" />
+            <TextView
+
+
+                android:textSize="17dp"
+                android:textColor="#fff"
+                android:text="Situaçao:Venda. "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textViewSituacao" />
+            </LinearLayout>
+
+
+
+            <!-- segunda linha-->
+
+
+
+            <LinearLayout
+
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="8 Ambientes| "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewAmbientes" />
+
+                <TextView
+
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="2 Banheiros| "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewBanheiros" />
+
+                <TextView
+
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="4 Salas, "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:id="@+id/textViewSalas" />
+                <TextView
+
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="Compl. "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewComplemento" />
+            </LinearLayout>
+
+
+<TextView
+    android:layout_marginTop="10dp"
+    android:textSize="17dp"
+    android:textColor="#fff"
+    android:text="Anunciante: Israel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/textViewAnunciante" />
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:textSize="17dp"
+                android:textColor="#fff"
+                android:text="Proprietario: Senhor Lol Matos"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/textViewProprietario" />
+
+
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:textSize="17dp"
+                android:textColor="#fff"
+                android:text="Caracteristicas "
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/textViewCaracteristicas" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.4"
+                android:id="@+id/linearLayout">
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Ligar"
+                    android:textColor="#fff"
+                    android:id="@+id/buttonLigar"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Enviar mensagem"
+                    android:textColor="#fff"
+                    android:id="@+id/buttonEnviarMensagem"
+                    android:layout_weight="1"
+                    android:singleLine="false" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+
+
+    </ScrollView>
+
+</LinearLayout>
