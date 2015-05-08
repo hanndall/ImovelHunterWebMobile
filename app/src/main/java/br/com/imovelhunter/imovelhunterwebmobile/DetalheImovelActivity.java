@@ -337,7 +337,7 @@ public class DetalheImovelActivity extends ActionBarActivity implements OnFinish
             }else if(responseCode == 1){
                 //OK
                 usuarioObject = (Usuario)data;
-                if(usuarioObject != null && usuarioObject.getChaveGCM() != null && usuarioObject.getChaveGCM().length() > 0){
+                if(usuarioObject != null && usuarioObject.getChaveGCM() != null && usuarioObject.getChaveGCM().length() > 0 && usuarioLogado.getIdUsuario() != usuarioObject.getIdUsuario()){
                     botaoEnviarMensagem.setVisibility(View.VISIBLE);
                 }
 

@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import br.com.imovelhunter.adapters.AdapterMensagem;
+import br.com.imovelhunter.dao.MensagemDAO;
 import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.ParametrosSessao;
@@ -45,15 +46,23 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
     private TaskEnviarMensagem taskEnviarMensagem;
 
+    private MensagemDAO mensagemDAO;
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        this.mensagemDAO = new MensagemDAO(getApplicationContext());
+
         meuUsuario = (Usuario)SessionUtil.getObject(ParametrosSessao.USUARIO_LOGADO);
         usuarioChatAtual = (Usuario)SessionUtil.getObject(ParametrosSessao.USUARIO_CHAT_ATUAL);
         this.listaMensagem = new ArrayList<Mensagem>();
+
+        List<Mensagem> mensagensDoDia = mensagemDAO.listarMensagemDoDiaDaData(new Date());
+
+        listaMensagem.addAll(mensagensDoDia);
 
         this.adapterMensagem = new AdapterMensagem(this.listaMensagem,this.meuUsuario);
 
@@ -81,12 +90,19 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
                 novaMensagem.setUsuariosDestino(lu);
                 novaMensagem.setDataEnvio(new Date());
                 novaMensagem.setMensagem(mensagem);
+                //TODO fazer ele persistir no banco do aplicativo que você já leu essa mensagem antes de enviar com o atribudo de  lida false
+                novaMensagem.setLida(true);
+                mensagemDAO.inserirMensagem(novaMensagem);
+                novaMensagem.setLida(false);
 
-                novaMensagem.setIdMensagem(0);
 
                 listaMensagem.add(novaMensagem);
 
+
+
                 adapterMensagem.notifyDataSetChanged();
+
+
 
                 taskEnviarMensagem = new TaskEnviarMensagem(1,ChatActivity.this);
                 taskEnviarMensagem.execute(SessionUtil.getObject(ParametrosSessao.WEB),novaMensagem);
@@ -98,6 +114,8 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
+
+
 
 
     }
@@ -132,9 +150,13 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
         mensagemO.parse(mensagemS);
 
+        mensagemO.setLida(true);
+
         listaMensagem.add(mensagemO);
 
         adapterMensagem.notifyDataSetChanged();
+
+        mensagemDAO.inserirMensagem(mensagemO);
 
     }
 

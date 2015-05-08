@@ -23,6 +23,8 @@ public class Usuario extends ObjetoJSON<Usuario> implements Serializable {
 	private String chaveGCM;
 
 	private String serialDispositivo;
+
+    private String nome;
 	
 	
 
@@ -64,6 +66,9 @@ public class Usuario extends ObjetoJSON<Usuario> implements Serializable {
         }else if(this.anunciante != null){
             return  this.anunciante.getNome();
         }else{
+            if(this.nome != null){
+                return this.nome;
+            }
             return "Anónimo";
         }
     }
@@ -76,5 +81,8 @@ public class Usuario extends ObjetoJSON<Usuario> implements Serializable {
 		this.cliente = cliente;
 	}
 
-	
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 }
