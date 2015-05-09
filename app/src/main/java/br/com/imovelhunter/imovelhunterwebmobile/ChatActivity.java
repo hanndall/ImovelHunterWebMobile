@@ -28,6 +28,7 @@ import br.com.imovelhunter.listeners.EscutadorDeMensagem;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskEnviarMensagem;
 import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.web.WebImp;
 
 
 public class ChatActivity extends ActionBarActivity implements EscutadorDeMensagem,OnFinishTask {
@@ -60,7 +61,14 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         usuarioChatAtual = (Usuario)SessionUtil.getObject(ParametrosSessao.USUARIO_CHAT_ATUAL);
         this.listaMensagem = new ArrayList<Mensagem>();
 
-        List<Mensagem> mensagensDoDia = mensagemDAO.listarMensagemDoDiaDaData(new Date());
+        Mensagem mensagem = (Mensagem)SessionUtil.getObject(ParametrosSessao.MENSAGEM_RECEBIDA_JSON);
+        if(mensagem != null){
+            meuUsuario = mensagem.getUsuariosDestino().get(0);
+            usuarioChatAtual = mensagem.getUsuarioRemetente();
+            SessionUtil.setObject(ParametrosSessao.WEB,new WebImp());
+        }
+
+        List<Mensagem> mensagensDoDia = mensagemDAO.listarConversa(meuUsuario.getIdUsuario(),usuarioChatAtual.getIdUsuario());
 
         listaMensagem.addAll(mensagensDoDia);
 
@@ -78,6 +86,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         this.botao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String mensagem = editText.getText().toString();
 
                 editText.setText("");
@@ -121,6 +130,29 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        SessionUtil.setObject(ParametrosSessao.USUARIO_LOGADO,meuUsuario);
+        SessionUtil.setObject(ParametrosSessao.USUARIO_CHAT_ATUAL,usuarioChatAtual);
+
+    }
+
+
+
+    @Override
+    public void onBackPressed() {
+        GcmBroadcastReceiver.setEscutadorDeMensagem(null);
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        GcmBroadcastReceiver.setEscutadorDeMensagem(null);
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.chat, menu);
@@ -152,9 +184,15 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
         mensagemO.setLida(true);
 
-        listaMensagem.add(mensagemO);
+        if(mensagemO.getUsuarioRemetente().getIdUsuario() == usuarioChatAtual.getIdUsuario()){
+            listaMensagem.add(mensagemO);
 
-        adapterMensagem.notifyDataSetChanged();
+            adapterMensagem.notifyDataSetChanged();
+
+            usuarioChatAtual.setChaveGCM(mensagemO.getUsuarioRemetente().getChaveGCM());
+        }
+
+
 
         mensagemDAO.inserirMensagem(mensagemO);
 

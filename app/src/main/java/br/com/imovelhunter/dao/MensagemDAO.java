@@ -107,6 +107,236 @@ public class MensagemDAO {
         return true;
     }
 
+    /**
+     * Método criado para listar as mensagens recebidas aos pouco, visando melhorar a performance da aplicação
+     * @param index
+     * @param quantidade
+     * @return
+     */
+    public List<Mensagem> listarMensagensPorRange(int index, int quantidade){
+        List<Mensagem> listaMensagem = new ArrayList<Mensagem>();
+        Cursor cursor = null;
+
+        try {
+
+
+            this.database = this.dbHelper.getReadableDatabase();
+
+            String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+
+
+
+            cursor = database.query(TABLE_NAME,colunas,null,null,null,null,atributos.ID+" DESC"," limit "+index+" offset "+quantidade);
+
+
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Mensagem mensagem = new Mensagem();
+                Usuario usuarioRemetente = new Usuario();
+                Usuario usuarioDestinatario = new Usuario();
+                List<Usuario> listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                int idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                mensagem.setLida(lida);
+                mensagem.setMensagem(mensagemS);
+                usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                mensagem.setUsuarioRemetente(usuarioRemetente);
+                listaUsuarioDestinatario.add(usuarioDestinatario);
+                mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                try{
+                    Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                    mensagem.setDataEnvio(dataMensagem);
+                }catch (Exception ex){
+                    Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                }
+
+                listaMensagem.add(mensagem);
+
+                while(cursor.moveToNext()){
+                    mensagem = new Mensagem();
+                    usuarioRemetente = new Usuario();
+                    usuarioDestinatario = new Usuario();
+                    listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                    mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                    idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                    idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                    lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                    nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                    mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                    mensagem.setLida(lida);
+                    mensagem.setMensagem(mensagemS);
+                    usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                    usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                    usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                    mensagem.setUsuarioRemetente(usuarioRemetente);
+                    listaUsuarioDestinatario.add(usuarioDestinatario);
+                    mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                    try{
+                        Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                        mensagem.setDataEnvio(dataMensagem);
+                    }catch (Exception ex){
+                        Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                    }
+                    listaMensagem.add(mensagem);
+                }
+
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+        }catch(Exception ex){
+            Log.e("ERROLISTAR",ex.getMessage());
+            return null;
+        }
+
+        listaMensagem = (List<Mensagem>)inverterOrdemLista(listaMensagem);
+        return listaMensagem;
+    }
+
+    private List<?> inverterOrdemLista(List<?> lista) {
+        List<Object> listaInvertida = new ArrayList<Object>();
+
+        if(lista != null) {
+            for (Object o : lista) {
+                listaInvertida.add(0, o);
+            }
+        }
+
+        return listaInvertida;
+    }
+
+    public List<Mensagem> listarConversa(long idUsuarioA, long idUsuarioB){
+
+        List<Mensagem> listaMensagem = new ArrayList<Mensagem>();
+        Cursor cursor = null;
+
+        try {
+
+
+
+
+            this.database = this.dbHelper.getReadableDatabase();
+
+
+            String where = "("+atributos.IDUSUARIOREMETENTE+" = ? AND "+atributos.IDUSUARIODESTINATARIO+" = ? ) OR ("+atributos.IDUSUARIODESTINATARIO+" = ? AND "+atributos.IDUSUARIOREMETENTE+" = ?)";
+
+            String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+
+            String argumentos[] = new String[] { String.valueOf(idUsuarioA),String.valueOf(idUsuarioB),String.valueOf(idUsuarioA),String.valueOf(idUsuarioB)};
+
+            cursor = database.query(TABLE_NAME,colunas,where,argumentos,null,null,null);
+
+
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Mensagem mensagem = new Mensagem();
+                Usuario usuarioRemetente = new Usuario();
+                Usuario usuarioDestinatario = new Usuario();
+                List<Usuario> listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                int idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                mensagem.setLida(lida);
+                mensagem.setMensagem(mensagemS);
+                usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                mensagem.setUsuarioRemetente(usuarioRemetente);
+                listaUsuarioDestinatario.add(usuarioDestinatario);
+                mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                try{
+                    Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                    mensagem.setDataEnvio(dataMensagem);
+                }catch (Exception ex){
+                    Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                }
+
+                listaMensagem.add(mensagem);
+
+                while(cursor.moveToNext()){
+                    mensagem = new Mensagem();
+                    usuarioRemetente = new Usuario();
+                    usuarioDestinatario = new Usuario();
+                    listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                    mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                    idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                    idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                    lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                    nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                    mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                    mensagem.setLida(lida);
+                    mensagem.setMensagem(mensagemS);
+                    usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                    usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                    usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                    mensagem.setUsuarioRemetente(usuarioRemetente);
+                    listaUsuarioDestinatario.add(usuarioDestinatario);
+                    mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                    try{
+                        Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                        mensagem.setDataEnvio(dataMensagem);
+                    }catch (Exception ex){
+                        Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                    }
+                    listaMensagem.add(mensagem);
+                }
+
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+        }catch(Exception ex){
+            Log.e("ERROLISTAR",ex.getMessage());
+            return null;
+        }
+
+
+        return listaMensagem;
+    }
+
 
     /**
      * Lista as mensagens do dia da data passada no parâmetro
@@ -147,6 +377,112 @@ public class MensagemDAO {
             String argumentos[] = new String[] { dataStringInicio,dataStringFim};
 
             cursor = database.query(TABLE_NAME,colunas,where,argumentos,null,null,null);
+
+
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Mensagem mensagem = new Mensagem();
+                Usuario usuarioRemetente = new Usuario();
+                Usuario usuarioDestinatario = new Usuario();
+                List<Usuario> listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                int idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                mensagem.setLida(lida);
+                mensagem.setMensagem(mensagemS);
+                usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                mensagem.setUsuarioRemetente(usuarioRemetente);
+                listaUsuarioDestinatario.add(usuarioDestinatario);
+                mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                try{
+                    Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                    mensagem.setDataEnvio(dataMensagem);
+                }catch (Exception ex){
+                    Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                }
+
+                listaMensagem.add(mensagem);
+
+                while(cursor.moveToNext()){
+                    mensagem = new Mensagem();
+                    usuarioRemetente = new Usuario();
+                    usuarioDestinatario = new Usuario();
+                    listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                    mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                    idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                    idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                    lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                    nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                    mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                    mensagem.setLida(lida);
+                    mensagem.setMensagem(mensagemS);
+                    usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                    usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                    usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                    mensagem.setUsuarioRemetente(usuarioRemetente);
+                    listaUsuarioDestinatario.add(usuarioDestinatario);
+                    mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                    try{
+                        Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                        mensagem.setDataEnvio(dataMensagem);
+                    }catch (Exception ex){
+                        Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                    }
+                    listaMensagem.add(mensagem);
+                }
+
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+        }catch(Exception ex){
+            Log.e("ERROLISTAR",ex.getMessage());
+            return null;
+        }
+
+
+        return listaMensagem;
+    }
+
+
+    public List<Mensagem> listarTudo(){
+        List<Mensagem> listaMensagem = new ArrayList<Mensagem>();
+        Cursor cursor = null;
+
+        try {
+
+
+
+            this.database = this.dbHelper.getReadableDatabase();
+
+
+            String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+
+
+
+            cursor = database.query(TABLE_NAME,colunas,null,null,null,null,null);
 
 
 

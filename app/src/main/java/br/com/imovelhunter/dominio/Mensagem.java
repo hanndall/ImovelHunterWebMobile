@@ -25,7 +25,14 @@ public class Mensagem extends ObjetoJSON<Mensagem> implements Serializable {
 	private List<Usuario> usuariosDestino;
 
     private Boolean lida;
-	
+
+    public Mensagem(String json){
+        super(json);
+    }
+
+    public Mensagem(){
+
+    }
 	
 
 	public long getIdMensagem() {

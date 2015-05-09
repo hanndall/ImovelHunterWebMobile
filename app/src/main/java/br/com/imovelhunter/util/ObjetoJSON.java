@@ -17,6 +17,19 @@ public class ObjetoJSON<T> {
 		
 		this.esc.putDateFormar("dd/MM/yyyy HH:mm:ss");
 	}
+
+    public ObjetoJSON(String json){
+        ParameterizedType pT = (ParameterizedType)this.getClass().getGenericSuperclass();
+        this.classe = (Class<T>)pT.getActualTypeArguments()[0];
+
+        this.esc = new EscrevedorDeJson();
+
+        this.esc.putDateFormar("dd/MM/yyyy HH:mm:ss");
+
+        if(json != null) {
+            esc.lerJson(json, this);
+        }
+    }
 	
 	public void putSimpleDateFormat(String format){
 		this.esc.putDateFormar(format);
