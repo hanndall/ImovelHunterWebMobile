@@ -24,12 +24,16 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.gms.maps.model.internal.e;
 
+import br.com.imovelhunter.dao.MensagemDAO;
+import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.listeners.EscutadorDeMensagem;
 
 
 public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 
     private static EscutadorDeMensagem escutadorDeMensagem;
+
+    private MensagemDAO mensagemDAO;
 
     public static void setEscutadorDeMensagem(EscutadorDeMensagem escutadorDeMensagem){
         GcmBroadcastReceiver.escutadorDeMensagem = escutadorDeMensagem;
@@ -40,12 +44,28 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
         // Explicitly specify that GcmIntentService will handle the intent.
         ComponentName comp = new ComponentName(context.getPackageName(),GcmIntentService.class.getName());
 
+        if(mensagemDAO == null) {
+            mensagemDAO = new MensagemDAO(context);
+        }
 
         if(escutadorDeMensagem != null){
             Bundle bundle = intent.getExtras();
 
             escutadorDeMensagem.recebeuAlgo(bundle);
         }else {
+
+
+            String mensagem = intent.getExtras().getString("mensagem");
+
+            Mensagem mensagemO = new Mensagem();
+
+            mensagemO.parse(mensagem);
+
+            mensagemO.setLida(true);
+
+            mensagemDAO.inserirMensagem(mensagemO);
+
+
             // Start the service, keeping the device awake while it is launching.
             startWakefulService(context, (intent.setComponent(comp)));
         }

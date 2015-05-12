@@ -13,11 +13,18 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import java.io.IOException;
+
+import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.enums.ParametrosSessao;
+import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskCadastroGCM;
+import br.com.imovelhunter.util.ManageFile;
 import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.util.SessionUtilJson;
 import br.com.imovelhunter.web.WebImp;
 
 
@@ -31,7 +38,7 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
 
     private Intent intentMapa;
 
-
+    private ManageFile magfile;
     /*
     * ActionBar bar = getActionBar();
         if (bar != null) {
@@ -46,13 +53,15 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
         }
     * */
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); //carregar a tela de splash aqui
 
-        ActionBar bar = getActionBar();
+
+
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
