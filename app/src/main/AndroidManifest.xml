@@ -20,7 +20,7 @@
 
     <!-- Keeps the processor from sleeping when a message is received. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="16" />
