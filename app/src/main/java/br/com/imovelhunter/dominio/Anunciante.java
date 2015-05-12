@@ -17,7 +17,7 @@ public class Anunciante extends ObjetoJSON<Anunciante> implements Serializable {
 
     private long idAnunciante;
 
-//
+///
     private String nome;
 
     private String telefone;
