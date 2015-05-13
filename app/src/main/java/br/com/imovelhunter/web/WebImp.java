@@ -9,6 +9,7 @@ import java.util.List;
 
 import br.com.imovelhunter.dominio.Anunciante;
 import br.com.imovelhunter.dominio.Bairros;
+import br.com.imovelhunter.dominio.Bloqueio;
 import br.com.imovelhunter.dominio.Cidades;
 import br.com.imovelhunter.dominio.Cliente;
 import br.com.imovelhunter.dominio.Filtro;
@@ -238,6 +239,16 @@ public class WebImp implements Web {
             return true;
         }
 
+    }
+
+    @Override
+    public List<Bloqueio> meusUsuarioBloqueado(Usuario usuario) throws IOException, MensagensException {
+        return null;
+    }
+
+    @Override
+    public List<Usuario> buscarContatosDoUsarario(Usuario usuario) throws IOException, MensagensException {
+        return null;
     }
 
 
