@@ -29,6 +29,8 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Notificacao;
+import br.com.imovelhunter.enums.ParametrosSessao;
+import br.com.imovelhunter.util.SessionUtil;
 
 
 /**
@@ -81,6 +83,8 @@ public class GcmIntentService extends IntentService {
 
                 sendNotification(mensagemO.getMensagem());
 
+                SessionUtil.setObject(ParametrosSessao.MENSAGEM_RECEBIDA_JSON,mensagemO);
+
 
             }
         }
@@ -125,7 +129,7 @@ public class GcmIntentService extends IntentService {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent in = new Intent(this,GcmActivity.class);
+        Intent in = new Intent(this,ChatActivity.class);
 
         in.putExtra("mensagem",msg);
 

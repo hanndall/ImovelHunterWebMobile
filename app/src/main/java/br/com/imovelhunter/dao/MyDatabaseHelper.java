@@ -12,7 +12,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "imovelhunterdb";
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
 
 
@@ -23,7 +23,10 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
     // Method is called during creation of the database
     @Override
     public void onCreate(SQLiteDatabase database) {
+        database.beginTransaction();
         database.execSQL(MensagemDAO.CREATE_TABLE);
+        database.setTransactionSuccessful();
+        database.endTransaction();
     }
 
     // Method is called during an upgrade of the database,
@@ -31,7 +34,10 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase database,int oldVersion,int newVersion){
         Log.w(MyDatabaseHelper.class.getName(), "Upgrading database from version " + oldVersion + " to "
                 + newVersion + ", which will destroy all old data");
+        database.beginTransaction();
         database.execSQL(MensagemDAO.DROP_TABLE);
+        database.setTransactionSuccessful();
+        database.endTransaction();
         onCreate(database);
     }
 }

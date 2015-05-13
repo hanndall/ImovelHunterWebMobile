@@ -23,7 +23,16 @@ public class Mensagem extends ObjetoJSON<Mensagem> implements Serializable {
 	private Usuario usuarioRemetente;
 
 	private List<Usuario> usuariosDestino;
-	
+
+    private Boolean lida;
+
+    public Mensagem(String json){
+        super(json);
+    }
+
+    public Mensagem(){
+
+    }
 	
 
 	public long getIdMensagem() {
@@ -65,8 +74,13 @@ public class Mensagem extends ObjetoJSON<Mensagem> implements Serializable {
 	public void setUsuariosDestino(List<Usuario> usuariosDestino) {
 		this.usuariosDestino = usuariosDestino;
 	}
-	
-	
-	
-	
+
+
+    public Boolean getLida() {
+        return lida;
+    }
+
+    public void setLida(Boolean lida) {
+        this.lida = lida;
+    }
 }
