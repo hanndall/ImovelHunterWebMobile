@@ -115,6 +115,10 @@
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat" >
         </activity>
+        <activity
+            android:name=".ContatosActivity"
+            android:label="@string/title_activity_contatos" >
+        </activity>
     </application>
 
 </manifest>
