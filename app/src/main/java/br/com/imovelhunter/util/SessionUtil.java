@@ -1,4 +1,4 @@
-package br.com.imovelhunter.util;
+/*package br.com.imovelhunter.util;
 
 
 import java.util.HashMap;
@@ -26,4 +26,4 @@ public class SessionUtil {
         sessao.remove(parametrosSessao);
     }
 
-}
+}*/

@@ -8,11 +8,7 @@ import java.util.List;
 import br.com.imovelhunter.util.ObjetoJSON;
 
 public class Mensagem extends ObjetoJSON<Mensagem> implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6581716970465655451L;
+
 
 	private long idMensagem;
 

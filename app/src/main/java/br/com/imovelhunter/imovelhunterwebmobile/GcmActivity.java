@@ -29,6 +29,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -42,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Main UI for the demo app.
  */
-public class GcmActivity extends Activity{
+public class GcmActivity extends ActionBarActivity{
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -67,7 +68,7 @@ public class GcmActivity extends Activity{
 
     String regid;
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,8 +81,9 @@ public class GcmActivity extends Activity{
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
-        ActionBar bar = getActionBar();
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
+
         //if (bar != null) {
         //    bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF9305")));
         //}

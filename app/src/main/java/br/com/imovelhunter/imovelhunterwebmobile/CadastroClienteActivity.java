@@ -21,12 +21,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import br.com.imovelhunter.dominio.Cliente;
+import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.ParametrosSessao;
 import br.com.imovelhunter.enums.TipoUsuario;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskCadastrarCliente;
-import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.util.SessionUtilJson;
 import br.com.imovelhunter.web.Web;
+import br.com.imovelhunter.web.WebImp;
 
 
 public class CadastroClienteActivity extends ActionBarActivity implements OnFinishTask {
@@ -46,13 +48,15 @@ public class CadastroClienteActivity extends ActionBarActivity implements OnFini
 
     private Web web;
 
+    private String serial;
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_cliente);
 
-        ActionBar bar = getActionBar();
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
@@ -62,7 +66,9 @@ public class CadastroClienteActivity extends ActionBarActivity implements OnFini
         this.progress.setIcon(R.drawable.imovelhunterimgicone);
         this.progress.setMessage("Processando");
 
-        this.web = (Web)SessionUtil.getObject(ParametrosSessao.WEB);
+        this.web = new WebImp();
+
+        this.serial = getIntent().getStringExtra(Parametros.SERIAL_DISPOSITIVO.name());
 
         this.editTextNome = (EditText)this.findViewById(R.id.edtTextNome);
         this.editTexSobrenome = (EditText)this.findViewById(R.id.edtTextSobreNome);
@@ -85,7 +91,7 @@ public class CadastroClienteActivity extends ActionBarActivity implements OnFini
                 progress.show();
                 cliente = newCliente();
 
-                new TaskCadastrarCliente(1,CadastroClienteActivity.this).execute(web,cliente,SessionUtil.getObject(ParametrosSessao.SERIAL));
+                new TaskCadastrarCliente(1,CadastroClienteActivity.this).execute(web,cliente,serial);
             }
 
         }

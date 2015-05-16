@@ -29,8 +29,9 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Notificacao;
+import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.ParametrosSessao;
-import br.com.imovelhunter.util.SessionUtil;
+
 
 
 /**
@@ -51,6 +52,7 @@ public class GcmIntentService extends IntentService {
         super("GcmIntentService");
     }
     public static final String TAG = "Aplicação gcm";
+    private Mensagem mensagem;
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -81,9 +83,11 @@ public class GcmIntentService extends IntentService {
 
                 mensagemO.parse(mensagem);
 
+                this.mensagem = mensagemO;
+
                 sendNotification(mensagemO.getMensagem());
 
-                SessionUtil.setObject(ParametrosSessao.MENSAGEM_RECEBIDA_JSON,mensagemO);
+
 
 
             }
@@ -126,13 +130,15 @@ public class GcmIntentService extends IntentService {
     // This is just one simple example of what you might choose to do with
     // a GCM message.
     private void sendNotification(String msg) {
-        mNotificationManager = (NotificationManager)
-                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent in = new Intent(this,ChatActivity.class);
 
-        in.putExtra("mensagem",msg);
+        Bundle extras = new Bundle();
+        extras.putSerializable(Parametros.MENSAGEM_JSON.name(),this.mensagem);
+        extras.putSerializable(ParametrosSessao.USUARIO_CHAT_ATUAL.name(), this.mensagem.getUsuarioRemetente());
 
+        in.putExtras(extras);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,in
                 , 0);
 

@@ -6,11 +6,6 @@ import java.io.Serializable;
 import br.com.imovelhunter.util.ObjetoJSON;
 
 public class Usuario extends ObjetoJSON<Usuario> implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4633881873007954301L;
 
 
 	private long idUsuario;

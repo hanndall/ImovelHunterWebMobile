@@ -9,146 +9,143 @@ import br.com.imovelhunter.util.ObjetoJSON;
 
 public class Anunciante extends ObjetoJSON<Anunciante> implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 7132428884709032729L;
 
+	private long idAnunciante;	
+	
 
-    private long idAnunciante;
+	private String nome;
+	
 
-///////
-    private String nome;
+	private String sobreNome;
 
     private String telefone;
 
-    private String sobreNome;
+	private String email;
+	
 
-    private String email;
+	private Date dataDeNascimento;
+	
 
-
-    private Date dataDeNascimento;
-
-
-    private Date dataDeVencimento;
-
-
-    private String creci;
+	private Date dataDeVencimento;
+	
 
 
-    private Date dataDeCriacao;
+	private String creci;
+	
 
+	private Date dataDeCriacao;
+	
 
-    private String cpf;
+	private String cpf;
+	
 
+	private String login;
+	
 
-    private String login;
+	private String senha;
+	
 
+	private TipoUsuario tipoUsuario;
+	
+	public Anunciante(){
+		this.tipoUsuario = TipoUsuario.USUARIO;
+	}
 
-    private String senha;
+	public long getIdAnunciante() {
+		return idAnunciante;
+	}
 
+	public void setIdAnunciante(long idAnunciante) {
+		this.idAnunciante = idAnunciante;
+	}	
 
-    private TipoUsuario tipoUsuario;
+	public String getNome() {
+		return nome;
+	}
 
-    public Anunciante() {
-        this.tipoUsuario = TipoUsuario.USUARIO;
-    }
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 
-    public long getIdAnunciante() {
-        return idAnunciante;
-    }
+	public String getSobreNome() {
+		return sobreNome;
+	}
 
-    public void setIdAnunciante(long idAnunciante) {
-        this.idAnunciante = idAnunciante;
-    }
+	public void setSobreNome(String sobreNome) {
+		this.sobreNome = sobreNome;
+	}
 
-    public String getNome() {
-        return nome;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getSobreNome() {
-        return sobreNome;
-    }
+	public Date getDataDeNascimento() {
+		return dataDeNascimento;
+	}
 
-    public void setSobreNome(String sobreNome) {
-        this.sobreNome = sobreNome;
-    }
+	public void setDataDeNascimento(Date dataDeNascimento) {
+		this.dataDeNascimento = dataDeNascimento;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public Date getDataDeVencimento() {
+		return dataDeVencimento;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setDataDeVencimento(Date dataDeVencimento) {
+		this.dataDeVencimento = dataDeVencimento;
+	}
 
-    public Date getDataDeNascimento() {
-        return dataDeNascimento;
-    }
+	public String getCreci() {
+		return creci;
+	}
 
-    public void setDataDeNascimento(Date dataDeNascimento) {
-        this.dataDeNascimento = dataDeNascimento;
-    }
+	public void setCreci(String creci) {
+		this.creci = creci;
+	}
 
-    public Date getDataDeVencimento() {
-        return dataDeVencimento;
-    }
+	public Date getDataDeCriacao() {
+		return dataDeCriacao;
+	}
 
-    public void setDataDeVencimento(Date dataDeVencimento) {
-        this.dataDeVencimento = dataDeVencimento;
-    }
+	public void setDataDeCriacao(Date dataDeCriacao) {
+		this.dataDeCriacao = dataDeCriacao;
+	}
 
-    public String getCreci() {
-        return creci;
-    }
+	public String getCpf() {
+		return cpf;
+	}
 
-    public void setCreci(String creci) {
-        this.creci = creci;
-    }
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
 
-    public Date getDataDeCriacao() {
-        return dataDeCriacao;
-    }
+	public String getLogin() {
+		return login;
+	}
 
-    public void setDataDeCriacao(Date dataDeCriacao) {
-        this.dataDeCriacao = dataDeCriacao;
-    }
+	public void setLogin(String login) {
+		this.login = login;
+	}
 
-    public String getCpf() {
-        return cpf;
-    }
+	public String getSenha() {
+		return senha;
+	}
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
 
-    public String getLogin() {
-        return login;
-    }
+	public TipoUsuario getTipoUsuario() {
+		return tipoUsuario;
+	}
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public TipoUsuario getTipoUsuario() {
-        return tipoUsuario;
-    }
-
-    public void setTipoUsuario(TipoUsuario tipoUsuario) {
-        this.tipoUsuario = tipoUsuario;
-    }
+	public void setTipoUsuario(TipoUsuario tipoUsuario) {
+		this.tipoUsuario = tipoUsuario;
+	}
 
     public String getTelefone() {
         return telefone;
@@ -157,4 +154,6 @@ public class Anunciante extends ObjetoJSON<Anunciante> implements Serializable {
     public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
+	
+	
 }

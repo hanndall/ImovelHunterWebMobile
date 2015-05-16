@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,15 +29,18 @@ import br.com.imovelhunter.dominio.Filtro;
 import br.com.imovelhunter.dominio.Imovel;
 import br.com.imovelhunter.dominio.Uf;
 import br.com.imovelhunter.enums.ParametrosSessao;
+import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskFiltrarImovel;
 import br.com.imovelhunter.tasks.TaskListarBairrosPorCidade;
 import br.com.imovelhunter.tasks.TaskListarCidadesPorUf;
 import br.com.imovelhunter.tasks.TaskListarUf;
-import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.util.SessionUtilJson;
+import br.com.imovelhunter.web.Web;
+import br.com.imovelhunter.web.WebImp;
 
 
-public class FiltroActivity extends Activity implements OnFinishTask{
+public class FiltroActivity extends ActionBarActivity implements OnFinishTask{
 
     private ArrayAdapter<CharSequence> vAluguel;
     private ArrayAdapter<CharSequence> vVendas;
@@ -51,6 +55,8 @@ public class FiltroActivity extends Activity implements OnFinishTask{
     private Spinner spinnerValores;
     private Spinner spinnerIipoImovel;
     private Spinner spinnerQuartos;
+
+    private Web web;
 
 
 
@@ -90,10 +96,12 @@ public class FiltroActivity extends Activity implements OnFinishTask{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filtro);
 
-        ActionBar bar = getActionBar();
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
+
+        this.web = new WebImp();
 
 
         this.progress = new ProgressDialog(this);
@@ -156,7 +164,7 @@ public class FiltroActivity extends Activity implements OnFinishTask{
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 uf = listaUf.get(position);
                 progress.show();
-                new TaskListarCidadesPorUf(REQUEST_LISTAR_CIDADE_POR_UF,FiltroActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB),uf);
+                new TaskListarCidadesPorUf(REQUEST_LISTAR_CIDADE_POR_UF,FiltroActivity.this).execute(web,uf);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -170,7 +178,7 @@ public class FiltroActivity extends Activity implements OnFinishTask{
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 cidade = listaCidades.get(position);
                 progress.show();
-                new TaskListarBairrosPorCidade(REQUEST_LISTAR_BAIRRO_POR_CIDADE,FiltroActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB), cidade);
+                new TaskListarBairrosPorCidade(REQUEST_LISTAR_BAIRRO_POR_CIDADE,FiltroActivity.this).execute(web, cidade);
             }
 
             @Override
@@ -192,7 +200,7 @@ public class FiltroActivity extends Activity implements OnFinishTask{
         });
 
         this.progress.show();
-        new TaskListarUf(REQUEST_LISTAR_UF,this).execute(SessionUtil.getObject(ParametrosSessao.WEB));
+        new TaskListarUf(REQUEST_LISTAR_UF,this).execute(web);
 
         this.btnConfirmar = (Button)this.findViewById(R.id.btnConfirmar);
         this.btnVoltar = (Button)this.findViewById(R.id.btnVoltar);
@@ -219,7 +227,7 @@ public class FiltroActivity extends Activity implements OnFinishTask{
                     filtro.setQtdQuarto((String) spinnerQuartos.getSelectedItem());
 
                     progress.show();
-                    new TaskFiltrarImovel(REQUEST_FILTRAR, FiltroActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB), filtro);
+                    new TaskFiltrarImovel(REQUEST_FILTRAR, FiltroActivity.this).execute(web, filtro);
 
                 }
             }
@@ -238,15 +246,15 @@ public class FiltroActivity extends Activity implements OnFinishTask{
     private boolean validarCampos(){
         if(listaUf.size() == 0){
             this.progress.show();
-            new TaskListarUf(REQUEST_LISTAR_UF,this).execute(SessionUtil.getObject(ParametrosSessao.WEB));
+            new TaskListarUf(REQUEST_LISTAR_UF,this).execute(web);
             return false;
         }else if(listaCidades.size() == 0){
             progress.show();
-            new TaskListarCidadesPorUf(REQUEST_LISTAR_CIDADE_POR_UF,FiltroActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB),uf);
+            new TaskListarCidadesPorUf(REQUEST_LISTAR_CIDADE_POR_UF,FiltroActivity.this).execute(web,uf);
             return false;
         }else if(listaBairro.size() == 0){
             progress.show();
-            new TaskListarBairrosPorCidade(REQUEST_LISTAR_BAIRRO_POR_CIDADE,FiltroActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB), cidade);
+            new TaskListarBairrosPorCidade(REQUEST_LISTAR_BAIRRO_POR_CIDADE,FiltroActivity.this).execute(web, cidade);
             return false;
         }
 
@@ -293,7 +301,7 @@ public class FiltroActivity extends Activity implements OnFinishTask{
                 List<Imovel> listaNova = (List<Imovel>)data;
 
                 if(listaNova.size() > 0){
-                    SessionUtil.setObject(ParametrosSessao.IMOVEIS_FILTRO,listaNova);
+                    SessionUtilJson.getInstance(this).setJsonArrayObject(ParametrosSessaoJson.IMOVEIS_FILTRO,listaNova);
                     setResult(1);
                     finish();
                 }else{

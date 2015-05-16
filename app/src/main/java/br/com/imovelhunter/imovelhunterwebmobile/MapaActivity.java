@@ -39,11 +39,14 @@ import br.com.imovelhunter.dialogs.DialogAlerta;
 import br.com.imovelhunter.dominio.Cliente;
 import br.com.imovelhunter.dominio.Imovel;
 import br.com.imovelhunter.dominio.Localizacao;
+import br.com.imovelhunter.dominio.Usuario;
+import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.ParametrosSessao;
+import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskListarImoveis;
 import br.com.imovelhunter.util.GpsUtil;
-import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.util.SessionUtilJson;
 import br.com.imovelhunter.web.Web;
 import br.com.imovelhunter.web.WebImp;
 
@@ -91,13 +94,13 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
 
 
     //Picasso.with(context).load("url").into(imoveview);
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
 
-        ActionBar bar = getActionBar();
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
@@ -219,11 +222,11 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
 
             Imovel imovelSelecionado = mapImovel.get(marker);
 
-            SessionUtil.setObject(ParametrosSessao.IMOVEL_SELECIONADO,imovelSelecionado);
-
             Intent intent = new Intent(MapaActivity.this,DetalheImovelActivity.class);
 
-            startActivityForResult(intent,CLIQUE_MARCADOR);
+            intent.putExtra(ParametrosSessao.IMOVEL_SELECIONADO.name(),imovelSelecionado);
+
+            startActivityForResult(intent, CLIQUE_MARCADOR);
 
             return false;
         }
@@ -268,7 +271,11 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             Intent intent = new Intent(MapaActivity.this,LoginActivity.class);
-            startActivityForResult(intent,CLIQUE_TELA_LOGIN);
+
+            intent.putExtra(ParametrosSessao.GCM.name(),gcm);
+            intent.putExtra(ParametrosSessao.SERIAL.name(), serial);
+
+            startActivityForResult(intent, CLIQUE_TELA_LOGIN);
             return true;
         }
     };
@@ -288,6 +295,9 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             Intent intent = new Intent(MapaActivity.this,CadastroClienteActivity.class);
+
+            intent.putExtra(Parametros.SERIAL_DISPOSITIVO.name(),serial);
+
             startActivityForResult(intent,CLIQUE_TELA_CADASTRO);
             return true;
         }
@@ -316,13 +326,15 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == CLIQUE_TELA_LOGIN){
-            if(SessionUtil.getObject(ParametrosSessao.USUARIO_LOGADO) == null){
+            Usuario usuarioLogado = (Usuario)data.getSerializableExtra(ParametrosSessao.USUARIO_LOGADO.name());
+            if(usuarioLogado == null){
                 return;
             }
             Toast.makeText(this,"Usuário logado com sucesso",Toast.LENGTH_LONG).show();
             menuItemLogin.setTitle("DESLOGAR");
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
             menuCadastrar.setVisible(false);
+            SessionUtilJson.getInstance(this).setJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,usuarioLogado);
         }else if(requestCode == CLIQUE_TELA_CADASTRO){
             if(resultCode == 1){
                 cliente = (Cliente)data.getSerializableExtra("clienteCadastrado");
@@ -330,9 +342,11 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
             }
         }else if(requestCode == CLIQUE_LUPA){
             if(resultCode == 1){
-                List<Imovel> listaNova = (List<Imovel>)SessionUtil.getObject(ParametrosSessao.IMOVEIS_FILTRO);
-                SessionUtil.removeObject(ParametrosSessao.IMOVEIS_FILTRO);
-                listaImovel = listaNova;
+                List<Imovel> listaNova = (List<Imovel>)SessionUtilJson.getInstance(this).getJsonArrayObject(ParametrosSessaoJson.IMOVEIS_FILTRO,Imovel.class);
+                SessionUtilJson.getInstance(this).removeObject(ParametrosSessaoJson.IMOVEIS_FILTRO);
+                if(listaNova != null) {
+                    listaImovel = listaNova;
+                }
                 this.map.clear();
                 this.mapImovel.clear();
                 for(Imovel i : this.listaImovel){
@@ -368,7 +382,7 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
     public void respondeuSim(int requestCode) {
         if(requestCode == CLIQUE_DESLOGAR){
             //////////////////
-            SessionUtil.removeObject(ParametrosSessao.USUARIO_LOGADO);
+            SessionUtilJson.getInstance(this).removeObject(ParametrosSessaoJson.USUARIO_LOGADO);
             Toast.makeText(MapaActivity.this,"Usuário deslogou",Toast.LENGTH_LONG).show();
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogin);
             menuItemLogin.setTitle("LOGAR");

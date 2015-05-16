@@ -23,7 +23,7 @@ import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskCadastroGCM;
 import br.com.imovelhunter.util.ManageFile;
-import br.com.imovelhunter.util.SessionUtil;
+
 import br.com.imovelhunter.util.SessionUtilJson;
 import br.com.imovelhunter.web.WebImp;
 
@@ -60,7 +60,6 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
         setContentView(R.layout.activity_main); //carregar a tela de splash aqui
 
 
-
         android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
         if (bar != null) {
@@ -72,9 +71,6 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
         this.chaveGcm = intent.getStringExtra("gcm");
 
         this.serial = this.getSerialNumber();
-
-        SessionUtil.setObject(ParametrosSessao.GCM,chaveGcm);
-        SessionUtil.setObject(ParametrosSessao.SERIAL,serial);
 
         new TaskCadastroGCM(1,this).execute(new WebImp(),this.chaveGcm,this.serial);
 
@@ -88,7 +84,6 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
     private Runnable irParaOMapa = new Runnable() {
         @Override
         public void run() {
-            SessionUtil.setObject(ParametrosSessao.WEB,new WebImp());
             startActivity(intentMapa);
             MainActivity.this.finish();
         }

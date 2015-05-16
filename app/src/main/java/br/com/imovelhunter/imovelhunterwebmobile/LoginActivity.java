@@ -3,6 +3,7 @@ package br.com.imovelhunter.imovelhunterwebmobile;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -19,10 +20,12 @@ import java.nio.charset.Charset;
 
 import br.com.imovelhunter.dominio.Anunciante;
 import br.com.imovelhunter.dominio.Cliente;
+import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.ParametrosSessao;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskLogar;
-import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.web.Web;
+import br.com.imovelhunter.web.WebImp;
 
 
 public class LoginActivity extends ActionBarActivity implements OnFinishTask {
@@ -33,6 +36,12 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
 
     private ProgressDialog progress;
 
+    private Web web;
+
+    private String gcm;
+
+    private String serial;
+
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -40,11 +49,18 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ActionBar bar = getActionBar();
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
+
+        Intent in = getIntent();
+
+        this.web = new WebImp();
+
+        gcm = (String)in.getSerializableExtra(ParametrosSessao.GCM.name());
+        serial = (String)in.getSerializableExtra(ParametrosSessao.SERIAL.name());
 
         this.progress = new ProgressDialog(this);
         this.progress.setIcon(R.drawable.imovelhunterimgicone);
@@ -62,7 +78,7 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
         @Override
         public void onClick(View v) {
             progress.show();
-            new TaskLogar(1,LoginActivity.this).execute(SessionUtil.getObject(ParametrosSessao.WEB),SessionUtil.getObject(ParametrosSessao.GCM),SessionUtil.getObject(ParametrosSessao.SERIAL),editTextLogin.getText().toString(),editTextSenha.getText().toString());
+            new TaskLogar(1,LoginActivity.this).execute(web,gcm,serial,editTextLogin.getText().toString(),editTextSenha.getText().toString());
         }
     };
 
@@ -93,8 +109,11 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
                 Toast.makeText(this,"Erro ao fazer o login",Toast.LENGTH_LONG).show();
             }else if(responseCode == 1){
                 if(data != null) {
-                    SessionUtil.setObject(ParametrosSessao.USUARIO_LOGADO, data);
-                    setResult(1);
+                    Usuario usuario = (Usuario)data;
+                    Intent in = new Intent();
+                    in.putExtra(ParametrosSessao.USUARIO_LOGADO.name(),usuario);
+
+                    setResult(1,in);
                     finish();
                 }else{
                     Toast.makeText(this,"Usuário não encontrado",Toast.LENGTH_LONG).show();

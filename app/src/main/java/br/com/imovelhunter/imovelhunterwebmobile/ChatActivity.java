@@ -2,9 +2,16 @@ package br.com.imovelhunter.imovelhunterwebmobile;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -23,11 +30,14 @@ import br.com.imovelhunter.adapters.AdapterMensagem;
 import br.com.imovelhunter.dao.MensagemDAO;
 import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Usuario;
+import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.ParametrosSessao;
+import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.EscutadorDeMensagem;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskEnviarMensagem;
-import br.com.imovelhunter.util.SessionUtil;
+import br.com.imovelhunter.util.SessionUtilJson;
+import br.com.imovelhunter.web.Web;
 import br.com.imovelhunter.web.WebImp;
 
 
@@ -49,32 +59,33 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
     private MensagemDAO mensagemDAO;
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private Web web;
+
+    private Intent in;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        GcmBroadcastReceiver.setEscutadorDeMensagem(this);
+
+        this.in = getIntent();
+
         this.mensagemDAO = new MensagemDAO(getApplicationContext());
 
-        meuUsuario = (Usuario)SessionUtil.getObject(ParametrosSessao.USUARIO_LOGADO);
-        usuarioChatAtual = (Usuario)SessionUtil.getObject(ParametrosSessao.USUARIO_CHAT_ATUAL);
+        this.web = new WebImp();
+
+        meuUsuario = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
+        usuarioChatAtual = (Usuario)in.getSerializableExtra(ParametrosSessao.USUARIO_CHAT_ATUAL.name());
         this.listaMensagem = new ArrayList<Mensagem>();
 
-        Mensagem mensagem = (Mensagem)SessionUtil.getObject(ParametrosSessao.MENSAGEM_RECEBIDA_JSON);
-        if(mensagem != null){
-            meuUsuario = mensagem.getUsuariosDestino().get(0);
-            usuarioChatAtual = mensagem.getUsuarioRemetente();
-            SessionUtil.setObject(ParametrosSessao.WEB,new WebImp());
-        }
 
         List<Mensagem> mensagensDoDia = mensagemDAO.listarConversa(meuUsuario.getIdUsuario(),usuarioChatAtual.getIdUsuario());
 
         listaMensagem.addAll(mensagensDoDia);
 
         this.adapterMensagem = new AdapterMensagem(this.listaMensagem,this.meuUsuario);
-
-        GcmBroadcastReceiver.setEscutadorDeMensagem(this);
 
         this.listView = (ListView)this.findViewById(R.id.listView);
 
@@ -114,11 +125,11 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
 
                 taskEnviarMensagem = new TaskEnviarMensagem(1,ChatActivity.this);
-                taskEnviarMensagem.execute(SessionUtil.getObject(ParametrosSessao.WEB),novaMensagem);
+                taskEnviarMensagem.execute(web,novaMensagem);
             }
         });
 
-        ActionBar bar = getActionBar();
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
@@ -131,11 +142,10 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putSerializable(ParametrosSessao.USUARIO_CHAT_ATUAL.name(),usuarioChatAtual);
+
         super.onSaveInstanceState(outState);
-
-        SessionUtil.setObject(ParametrosSessao.USUARIO_LOGADO,meuUsuario);
-        SessionUtil.setObject(ParametrosSessao.USUARIO_CHAT_ATUAL,usuarioChatAtual);
-
     }
 
 
@@ -190,12 +200,56 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
             adapterMensagem.notifyDataSetChanged();
 
             usuarioChatAtual.setChaveGCM(mensagemO.getUsuarioRemetente().getChaveGCM());
+        }else{
+
+
+
+            mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            Intent intent = new Intent(this,ChatActivity.class);
+
+            String msg = mensagemO.getMensagem();
+
+            Bundle args = new Bundle();
+
+            args.putSerializable(Parametros.MENSAGEM_JSON.name(),mensagemO);
+            args.putSerializable(ParametrosSessao.USUARIO_CHAT_ATUAL.name(),mensagemO.getUsuarioRemetente());
+
+            intent.putExtras(args);
+
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0,intent
+                    , 0);
+
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.imovelhunterimgicone)
+                    .setContentTitle("Imovel Hunter")
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(msg))
+                    .setContentText(msg);
+
+            mBuilder.setAutoCancel(true);
+
+
+
+            mBuilder.setContentIntent(contentIntent);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+
+            this.vibrar();
+
         }
-
-
-
         mensagemDAO.inserirMensagem(mensagemO);
 
+    }
+
+    private NotificationManager mNotificationManager;
+
+    public static final int NOTIFICATION_ID = 1;
+
+    private void vibrar()
+    {
+        Vibrator rr = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        long milliseconds = 1000;
+        rr.vibrate(milliseconds);
     }
 
     @Override

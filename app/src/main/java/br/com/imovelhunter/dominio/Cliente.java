@@ -8,11 +8,7 @@ import br.com.imovelhunter.enums.TipoUsuario;
 import br.com.imovelhunter.util.ObjetoJSON;
 
 public class Cliente extends ObjetoJSON<Cliente> implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -901566217226420067L;
+
 
 
 	private long idCliente;
