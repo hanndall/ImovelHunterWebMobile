@@ -3,6 +3,7 @@ package br.com.imovelhunter.imovelhunterwebmobile;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -42,8 +43,10 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
 
     private String serial;
 
+    private TaskLogar taskLogar;
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +68,14 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
         this.progress = new ProgressDialog(this);
         this.progress.setIcon(R.drawable.imovelhunterimgicone);
         this.progress.setMessage("Processando");
+        this.progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                if(taskLogar != null){
+                    taskLogar.cancel(true);
+                }
+            }
+        });
 
         this.editTextLogin = (EditText)this.findViewById(R.id.editTextLogin);
         this.editTextSenha = (EditText)this.findViewById(R.id.editTextSenha);
@@ -78,7 +89,8 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
         @Override
         public void onClick(View v) {
             progress.show();
-            new TaskLogar(1,LoginActivity.this).execute(web,gcm,serial,editTextLogin.getText().toString(),editTextSenha.getText().toString());
+            taskLogar = new TaskLogar(1,LoginActivity.this);
+            taskLogar.execute(web,gcm,serial,editTextLogin.getText().toString(),editTextSenha.getText().toString());
         }
     };
 

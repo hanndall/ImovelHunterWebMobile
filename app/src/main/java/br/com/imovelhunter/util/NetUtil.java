@@ -3,6 +3,8 @@ package br.com.imovelhunter.util;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 /**
@@ -16,7 +18,7 @@ public class NetUtil {
         this.context = context;
     }
 
-    private Boolean verificaInternet(){
+    public Boolean verificaInternet(){
         ConnectivityManager cm = (ConnectivityManager)this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {
@@ -25,6 +27,21 @@ public class NetUtil {
             Toast.makeText(this.context, "Sem conexão com a internet", Toast.LENGTH_LONG).show();
             return false;
         }
+    }
+
+    public String getSerialNumber(){
+        TelephonyManager telemamanger = (TelephonyManager)this.context.getSystemService(Context.TELEPHONY_SERVICE);
+        String getSimSerialNumber = telemamanger.getSimSerialNumber();
+
+        if(getSimSerialNumber == null){
+            getSimSerialNumber = telemamanger.getDeviceId();
+
+            if(getSimSerialNumber == null){
+                getSimSerialNumber = Build.SERIAL;
+            }
+        }
+
+        return getSimSerialNumber;
     }
 
 

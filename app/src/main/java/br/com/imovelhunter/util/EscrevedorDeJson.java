@@ -205,7 +205,7 @@ public class EscrevedorDeJson {
 		try{
 			
 			if(!(objeto instanceof ObjetoJSON)){
-				throw new Exception("O objeto n�o extende um ObjetoJSON");
+				throw new Exception("O objeto não extende um ObjetoJSON");
 			}
 			
 			JSONObject objetoJson = new JSONObject(jsonObject);

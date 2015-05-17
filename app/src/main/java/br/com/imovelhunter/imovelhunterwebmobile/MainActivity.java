@@ -18,12 +18,14 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import br.com.imovelhunter.dominio.Mensagem;
+import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.ParametrosSessao;
 import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskCadastroGCM;
 import br.com.imovelhunter.util.ManageFile;
 
+import br.com.imovelhunter.util.NetUtil;
 import br.com.imovelhunter.util.SessionUtilJson;
 import br.com.imovelhunter.web.WebImp;
 
@@ -72,6 +74,11 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
 
         this.serial = this.getSerialNumber();
 
+        if(!new NetUtil(this).verificaInternet()){
+            Toast.makeText(this,"Sem conexão com a internet",Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         new TaskCadastroGCM(1,this).execute(new WebImp(),this.chaveGcm,this.serial);
 
         this.intentMapa = new Intent(this,MapaActivity.class);
@@ -126,6 +133,14 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
 
     @Override
     public void finish(int requestCode, int responseCode, Object data) {
+
+        if(SessionUtilJson.getInstance(this).containsName(ParametrosSessaoJson.USUARIO_LOGADO)){
+            Usuario u = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
+            u.setChaveGCM(chaveGcm);
+            u.setSerialDispositivo(serial);
+            SessionUtilJson.getInstance(this).setJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,u);
+        }
+
         this.hand.postDelayed(this.irParaOMapa,3000);
     }
 }

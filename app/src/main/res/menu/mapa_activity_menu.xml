@@ -4,13 +4,16 @@
     tools:context=".MapaActivity" >
 
     <item android:id="@+id/menu_logar"
-        android:title="Logar"
-        app:showAsAction="ifRoom"
-         />
+        android:title="Logar"/>
 
     <item android:id="@+id/menu_cadastrar"
-        android:title="Cadastrar-se"
-        app:showAsAction="ifRoom"
-        />
+        android:title="Cadastrar-se"/>
+
+    <item android:id="@+id/menu_perfil_imovel"
+        android:title="Cadastro de Interesse"/>
+
+    <item android:id="@+id/menu_perfil_lista_contatos"
+        android:title="Chat"/>
+
 
 </menu>

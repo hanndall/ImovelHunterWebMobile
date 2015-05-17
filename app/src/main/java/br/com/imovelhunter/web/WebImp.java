@@ -242,13 +242,116 @@ public class WebImp implements Web {
     }
 
     @Override
-    public List<Bloqueio> meusUsuarioBloqueado(Usuario usuario) throws IOException, MensagensException {
-        return null;
+    public Boolean bloquearUsuario(Usuario usuarioBloqueador, Usuario usuarioBloqueado) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao",Requisicao.STATUS_BLOQUEIO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_BLOQUEADO.name(),usuarioBloqueado.toString());
+        this.httpUtil.put(Parametros.USUARIO_BLOQUEADOR.name(),usuarioBloqueador.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            return true;
+        }
+
     }
 
     @Override
-    public List<Usuario> buscarContatosDoUsarario(Usuario usuario) throws IOException, MensagensException {
-        return null;
+    public Boolean desbloquearUsuario(Usuario usuarioBloqueador, Usuario usuarioBloqueado) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.STATUS_DESBLOQUEIO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_BLOQUEADO.name(),usuarioBloqueado.toString());
+        this.httpUtil.put(Parametros.USUARIO_BLOQUEADOR.name(),usuarioBloqueador.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            return true;
+        }
+    }
+
+    @Override
+    public List<Usuario> listarContatosDoUsuario(Usuario usuario) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.LISTAR_CONTATOS_DO_USUARIO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_JSON.name(),usuario.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            try {
+                return (List<Usuario>)this.httpUtil.jsonArrayToList(resp,Usuario.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new MensagensException("Erro ao dar o parse da lista de Usuários");
+            }
+        }
+
+
+    }
+
+    @Override
+    public List<Usuario> listarContatosBloqueadosDoUsuario(Usuario usuario) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.LISTAR_CONTATOS_BLOQUEADOS_DO_USUARIO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_JSON.name(),usuario.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            try {
+                return (List<Usuario>)this.httpUtil.jsonArrayToList(resp,Usuario.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new MensagensException("Erro ao dar o parse da lista de Usuários");
+            }
+        }
+    }
+
+    @Override
+    public Boolean adicionarContato(Usuario usuarioAdicionador, Usuario usuarioAdicionado) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.ADICIONAR_USUARIO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_ADICIONADO.name(),usuarioAdicionado.toString());
+        this.httpUtil.put(Parametros.USUARIO_ADICIONADOR.name(),usuarioAdicionador.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            return true;
+        }
+    }
+
+    @Override
+    public Boolean removerContato(Usuario usuarioRemovedor, Usuario usuarioRemovido) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao",Requisicao.REMOVER_USUARIO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_REMOVEDOR.name(),usuarioRemovedor.toString());
+        this.httpUtil.put(Parametros.USUARIO_REMOVIDO.name(),usuarioRemovido.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            return true;
+        }
     }
 
 

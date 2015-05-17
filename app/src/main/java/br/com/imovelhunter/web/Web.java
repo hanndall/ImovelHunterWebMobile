@@ -103,8 +103,61 @@ public interface Web {
      */
     Boolean enviarMensagem(Mensagem mensagem) throws IOException, MensagensException;
 
-    List<Bloqueio> meusUsuarioBloqueado(Usuario usuario) throws IOException, MensagensException;
+    /**
+     * Método que serve para bloquear o contato
+     * @param usuarioBloqueador
+     * @param usuarioBloqueado
+     * @return
+     */
+    Boolean bloquearUsuario(Usuario usuarioBloqueador,Usuario usuarioBloqueado) throws IOException, MensagensException;
 
-    List<Usuario> buscarContatosDoUsarario(Usuario usuario) throws IOException, MensagensException;
+    /**
+     * Método que serve para desbloquear um contato
+     * @param usuarioBloqueador
+     * @param usuarioBloqueado
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    Boolean desbloquearUsuario(Usuario usuarioBloqueador,Usuario usuarioBloqueado) throws IOException, MensagensException;
+
+    /**
+     * Lista os contatos do usuário
+     * @param usuario
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    List<Usuario> listarContatosDoUsuario(Usuario usuario) throws IOException, MensagensException;
+
+    /**
+     * Lista os contatos bloqueados do usuário
+     * @param usuario
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    List<Usuario> listarContatosBloqueadosDoUsuario(Usuario usuario) throws IOException, MensagensException;
+
+    /**
+     * Método que serve para adicionar um contato a lista de contatos
+     * @param usuarioAdicionador
+     * @param usuarioAdicionado
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    Boolean adicionarContato(Usuario usuarioAdicionador,Usuario usuarioAdicionado) throws IOException, MensagensException;
+
+    /**
+     * Método que serve para remover um contato da sua lista de contatos
+     * @param usuarioRemovedor
+     * @param usuarioRemovido
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    Boolean removerContato(Usuario usuarioRemovedor,Usuario usuarioRemovido) throws IOException, MensagensException;
 
 }
+

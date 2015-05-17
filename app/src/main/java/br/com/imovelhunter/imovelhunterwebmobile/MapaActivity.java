@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import br.com.imovelhunter.adapters.MapaInfoWindowAdapter;
 import br.com.imovelhunter.dialogs.DialogAlerta;
 import br.com.imovelhunter.dominio.Cliente;
@@ -46,18 +48,17 @@ import br.com.imovelhunter.enums.ParametrosSessaoJson;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskListarImoveis;
 import br.com.imovelhunter.util.GpsUtil;
+import br.com.imovelhunter.util.NetUtil;
 import br.com.imovelhunter.util.SessionUtilJson;
 import br.com.imovelhunter.web.Web;
 import br.com.imovelhunter.web.WebImp;
 
 
-public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoordenadaRecebida,OnFinishTask,DialogAlerta.RespostaSim{
+public class MapaActivity extends ActionBarActivity implements OnFinishTask,DialogAlerta.RespostaSim{
 
     private GoogleMap map;
 
     private LatLng latLng;
-
-    private GpsUtil gpsUtil;
 
     private ProgressDialog dialog;
 
@@ -89,6 +90,11 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
 
     private ImageView lupa;
 
+    private Usuario usuarioLogado;
+
+    private NetUtil netUtil;
+
+    private Handler handlerListarImoveisInicio;
 
     //private Object usuarioLogado; definir o tipo do usuarioLogado
 
@@ -105,13 +111,19 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
 
+        this.netUtil = new NetUtil(this);
+
+        this.handlerListarImoveisInicio = new Handler();
+
         this.lupa = (ImageView)this.findViewById(R.id.imageViewFiltrar);
 
         this.lupa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent in = new Intent(MapaActivity.this,FiltroActivity.class);
-                startActivityForResult(in,CLIQUE_LUPA);
+                if(netUtil.verificaInternet()) {
+                    Intent in = new Intent(MapaActivity.this, FiltroActivity.class);
+                    startActivityForResult(in, CLIQUE_LUPA);
+                }
             }
         });
 
@@ -130,8 +142,7 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         //if(this.usuarioLogado == null){ definir o que será feito
         //}
 
-        this.gpsUtil = new GpsUtil(this);
-        this.gpsUtil.ativarListeners();
+
 
 
         this.marcadores = new ArrayList<Marker>();
@@ -172,10 +183,25 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         });
 
 
-        //Manda listar todos os imoveis
-        new TaskListarImoveis(1,this).execute(this.web);
+        if(netUtil.verificaInternet()) {
+            //Manda listar todos os imoveis
+            new TaskListarImoveis(1, this).execute(this.web);
+        }else{
+            this.handlerListarImoveisInicio.postDelayed(runListarImoveisInternet,5000);
+        }
 
     }
+
+    private Runnable runListarImoveisInternet = new Runnable() {
+        @Override
+        public void run() {
+            if(netUtil.verificaInternet()){
+                new TaskListarImoveis(1,MapaActivity.this).execute(web);
+            }else{
+                handlerListarImoveisInicio.postDelayed(runListarImoveisInternet,5000);
+            }
+        }
+    };
 
     /**
      * Adiciona um ponto no mapa, podendo inserir título e ícone
@@ -220,62 +246,36 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         @Override
         public boolean onMarkerClick(Marker marker) {
 
-            Imovel imovelSelecionado = mapImovel.get(marker);
+            if(netUtil.verificaInternet()) {
+                Imovel imovelSelecionado = mapImovel.get(marker);
 
-            Intent intent = new Intent(MapaActivity.this,DetalheImovelActivity.class);
+                Intent intent = new Intent(MapaActivity.this, DetalheImovelActivity.class);
 
-            intent.putExtra(ParametrosSessao.IMOVEL_SELECIONADO.name(),imovelSelecionado);
+                intent.putExtra(ParametrosSessao.IMOVEL_SELECIONADO.name(), imovelSelecionado);
 
-            startActivityForResult(intent, CLIQUE_MARCADOR);
+                startActivityForResult(intent, CLIQUE_MARCADOR);
 
+                return false;
+            }
             return false;
         }
 
     };
 
-    @Override
-    @Deprecated
-    public void chegouCoordenada(Localizacao localizacao) {
 
-        this.latLng = new LatLng(localizacao.getLatitude(),localizacao.getLongitude());
-
-
-        if(this.map == null) {
-
-            int idMapa = R.id.map; // coloque aqui o id do mapa do layout ex : R.id.map
-            this.map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(idMapa)).getMap();
-
-            this.map.setOnMarkerClickListener(clicouMarcadorMapa);
-
-            this.map.moveCamera(CameraUpdateFactory.newLatLngZoom(this.latLng, 15));
-            this.map.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
-            //Marca sua posição no mapa
-            this.map.getUiSettings().setMyLocationButtonEnabled(true);
-            this.map.getUiSettings().setCompassEnabled(true);
-            this.map.setMyLocationEnabled(true);
-
-
-            this.gpsUtil.desativarListener();
-
-            //Manda listar todos os imoveis
-            new TaskListarImoveis(1,this).execute(this.web);
-
-        }
-        this.gpsUtil.desativarListener();
-    }
-
-    private MenuItem menuItemLogin;
-    private MenuItem menuCadastrar;
 
     private MenuItem.OnMenuItemClickListener clickMenuLogin = new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-            Intent intent = new Intent(MapaActivity.this,LoginActivity.class);
+            if(netUtil.verificaInternet()) {
+                Intent intent = new Intent(MapaActivity.this, LoginActivity.class);
 
-            intent.putExtra(ParametrosSessao.GCM.name(),gcm);
-            intent.putExtra(ParametrosSessao.SERIAL.name(), serial);
+                intent.putExtra(ParametrosSessao.GCM.name(), gcm);
+                intent.putExtra(ParametrosSessao.SERIAL.name(), serial);
 
-            startActivityForResult(intent, CLIQUE_TELA_LOGIN);
+                startActivityForResult(intent, CLIQUE_TELA_LOGIN);
+                return true;
+            }
             return true;
         }
     };
@@ -288,6 +288,17 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
 
 
             return true;
+        }
+    };
+
+    private MenuItem.OnMenuItemClickListener clickMenuChat = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            if(netUtil.verificaInternet()){
+                //TODO criar o activyt do chat
+            }
+
+            return false;
         }
     };
 
@@ -304,6 +315,11 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
     };
 
 
+    private MenuItem menuItemLogin;
+    private MenuItem menuCadastrar;
+    private MenuItem menuCadastroInteresse;
+    private MenuItem menuChat;
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -312,10 +328,26 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
 
         this.menuItemLogin = menu.getItem(0);
         this.menuCadastrar = menu.getItem(1);
+        this.menuCadastroInteresse = menu.getItem(2);
+        this.menuChat = menu.getItem(3);
 
         this.menuItemLogin.setOnMenuItemClickListener(this.clickMenuLogin);
 
         this.menuCadastrar.setOnMenuItemClickListener(this.clickMenuCadastro);
+
+        this.menuChat.setOnMenuItemClickListener(this.clickMenuChat);
+
+        this.menuChat.setVisible(false);
+        this.menuCadastroInteresse.setVisible(false);
+
+        if(SessionUtilJson.getInstance(this).containsName(ParametrosSessaoJson.USUARIO_LOGADO)){
+            this.usuarioLogado = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
+            this.menuChat.setVisible(true);
+            this.menuCadastroInteresse.setVisible(true);
+            menuItemLogin.setTitle("DESLOGAR");
+            menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
+            menuCadastrar.setVisible(false);
+        }
 
         return true;
     }
@@ -326,14 +358,16 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == CLIQUE_TELA_LOGIN){
-            Usuario usuarioLogado = (Usuario)data.getSerializableExtra(ParametrosSessao.USUARIO_LOGADO.name());
-            if(usuarioLogado == null){
+            if(resultCode != 1){
                 return;
             }
+            this.usuarioLogado = (Usuario)data.getSerializableExtra(ParametrosSessao.USUARIO_LOGADO.name());
             Toast.makeText(this,"Usuário logado com sucesso",Toast.LENGTH_LONG).show();
             menuItemLogin.setTitle("DESLOGAR");
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
             menuCadastrar.setVisible(false);
+            menuChat.setVisible(true);
+            menuCadastroInteresse.setVisible(true);
             SessionUtilJson.getInstance(this).setJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,usuarioLogado);
         }else if(requestCode == CLIQUE_TELA_CADASTRO){
             if(resultCode == 1){
@@ -387,6 +421,8 @@ public class MapaActivity extends ActionBarActivity implements GpsUtil.OnCoorden
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogin);
             menuItemLogin.setTitle("LOGAR");
             menuCadastrar.setVisible(true);
+            menuChat.setVisible(false);
+            menuCadastroInteresse.setVisible(false);
             //////////////////
         }
     }
