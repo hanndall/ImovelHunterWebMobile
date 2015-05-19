@@ -2,8 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="br.com.imovelhunter.imovelhunterwebmobile.ChatActivity" >
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+
+    <item android:id="@+id/bloqdesbloq"
+        android:title="Bloquear"
         android:orderInCategory="100"
         app:showAsAction="never" />
+
 </menu>

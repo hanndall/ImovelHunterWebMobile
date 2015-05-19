@@ -110,7 +110,6 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
                 novaMensagem.setUsuariosDestino(lu);
                 novaMensagem.setDataEnvio(new Date());
                 novaMensagem.setMensagem(mensagem);
-                //TODO fazer ele persistir no banco do aplicativo que você já leu essa mensagem antes de enviar com o atribudo de  lida false
                 novaMensagem.setLida(true);
                 mensagemDAO.inserirMensagem(novaMensagem);
                 novaMensagem.setLida(false);
@@ -162,12 +161,33 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         super.onDestroy();
     }
 
+    private MenuItem menuItemBloqDesbloq;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds items to the action bar if it is present..
         getMenuInflater().inflate(R.menu.chat, menu);
+
+        this.menuItemBloqDesbloq = menu.getItem(0);
+
+        this.menuItemBloqDesbloq.setOnMenuItemClickListener(cliqueBloquear);
+
         return true;
     }
+
+    private MenuItem.OnMenuItemClickListener cliqueBloquear = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            return true;
+        }
+    };
+
+    private MenuItem.OnMenuItemClickListener cliqueDesBloquear = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            return true;
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
