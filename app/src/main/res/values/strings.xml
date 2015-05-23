@@ -65,5 +65,6 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="title_activity_contatos">ContatosActivity</string>
+    <string name="title_activity_lista_contato">ListaContatoActivity</string>
 
 </resources>

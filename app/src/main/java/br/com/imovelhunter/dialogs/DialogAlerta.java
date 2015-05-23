@@ -85,7 +85,7 @@ public class DialogAlerta {
                     }
 
                 })
-                .setNegativeButton(this.respNao, null).setNegativeButton("Não",new DialogInterface.OnClickListener() {
+                .setNegativeButton(this.respNao, null).setNegativeButton(this.respNao,new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(respostaNao != null){

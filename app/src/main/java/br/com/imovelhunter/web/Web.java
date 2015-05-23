@@ -159,5 +159,27 @@ public interface Web {
      */
     Boolean removerContato(Usuario usuarioRemovedor,Usuario usuarioRemovido) throws IOException, MensagensException;
 
+    /**
+     * Método que vai verificar se um determinado usuário já está na lista de contatos
+     * @param usuarioAdicionador
+     * @param usuarioAdicionado
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    Boolean usuarioEAdicionado(Usuario usuarioAdicionador,Usuario usuarioAdicionado) throws IOException, MensagensException;
+
+    /**
+     * Método que vai verificar se um determinado usuário já está bloqueado na lista de bloqueados
+     * @param usuarioBloqueador
+     * @param usuarioBloquado
+     * @return
+     * @throws IOException
+     * @throws MensagensException
+     */
+    Boolean usuarioEBloqueado(Usuario usuarioBloqueador,Usuario usuarioBloquado) throws IOException, MensagensException;
+
+
+
 }
 

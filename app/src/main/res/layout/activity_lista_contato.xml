@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="br.com.imovelhunter.imovelhunterwebmobile.ListaContatoActivity"
+    android:orientation="vertical">
+
+    <view
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        class="android.support.v4.view.ViewPager"
+        android:id="@+id/pageviewcontatos" >
+
+        <android.support.v4.view.PagerTabStrip
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tabStrip"/>
+
+    </view>
+
+</LinearLayout>
