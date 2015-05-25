@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:background="#F8F6F1"
+
+    android:layout_height="match_parent">
+
+    <LinearLayout
+
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <ImageView
+
+            android:src="@drawable/iconproperty"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/item_imagem_imovel" />
+
+
+
+        <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+android:layout_marginLeft="2dp"
+            android:id="@+id/txtItemNumero"
+            android:typeface="serif"
+            android:layout_marginTop="5dp"
+            android:textColor="#375c76"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="812 -"
+            android:singleLine="true"
+            />
+
+
+
+
+    <TextView
+android:id="@+id/txtItemRua"
+        android:typeface="serif"
+        android:layout_marginTop="5dp"
+        android:textColor="#375c76"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Rua Feliz- da silva Filho"
+        android:singleLine="true"
+        />
+    </LinearLayout>
+    <LinearLayout
+
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:layout_marginTop="3dp"
+                android:src="@drawable/dollar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/icon_money" />
+
+            <TextView
+
+                android:id="@+id/txtItemPreco"
+                android:layout_marginLeft="0dp"
+                android:typeface="serif"
+                android:layout_marginTop="5dp"
+                android:textColor="#375c76"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="00"
+                android:singleLine="true" />
+
+
+            <ImageView
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/check"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                />
+            <TextView
+android:id="@+id/txtItemSituacao"
+        android:typeface="serif"
+        android:layout_marginTop="5dp"
+        android:textColor="#375c76"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="situacao"
+        android:singleLine="true" />
+
+            <ImageView
+                android:layout_marginTop="8dp"
+                android:src="@drawable/check"
+                android:layout_width="20dp"
+                android:layout_height="20dp">
+
+            </ImageView>
+
+        <TextView
+            android:id="@+id/txtItemTipo"
+            android:layout_marginLeft="00dp"
+        android:typeface="serif"
+        android:layout_marginTop="5dp"
+        android:textColor="#375c76"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="tipo"
+        android:singleLine="true" />
+
+
+
+
+        </LinearLayout>
+    </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
