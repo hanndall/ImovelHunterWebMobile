@@ -67,4 +67,8 @@
     <string name="title_activity_contatos">ContatosActivity</string>
     <string name="title_activity_lista_contato">ListaContatoActivity</string>
 
+    <string name="title_activity_notification">NotificationActivity</string>
+    <string name="minhas_notificacoes" />
+
+
 </resources>
