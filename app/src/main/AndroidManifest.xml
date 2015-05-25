@@ -74,6 +74,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".NotificationActivity"
+            android:label="Notificacoes">
+
+
+        </activity>
+
+
         <!--
             WakefulBroadcastReceiver that will receive intents from GCM
             services and hand them to the custom IntentService.
