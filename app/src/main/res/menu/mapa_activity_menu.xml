@@ -15,5 +15,7 @@
     <item android:id="@+id/menu_perfil_lista_contatos"
         android:title="Chat"/>
 
+    <item android:id="@+id/menu_perfil_notificacoes"
+        android:title="Notificacoes"/>
 
 </menu>
