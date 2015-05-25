@@ -25,6 +25,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.beginTransaction();
         database.execSQL(MensagemDAO.CREATE_TABLE);
+        database.execSQL(NotificacaoDAO.CREATE_TABLE);//
         database.setTransactionSuccessful();
         database.endTransaction();
     }
@@ -36,6 +37,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
                 + newVersion + ", which will destroy all old data");
         database.beginTransaction();
         database.execSQL(MensagemDAO.DROP_TABLE);
+        database.execSQL(NotificacaoDAO.DROP_TABLE);
         database.setTransactionSuccessful();
         database.endTransaction();
         onCreate(database);
