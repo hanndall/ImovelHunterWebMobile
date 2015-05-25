@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.com.imovelhunter.imovelhunterwebmobile" >
 
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16" />
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="br.com.imovelhunter.imovelhunterwebmobile.permission.MAPS_RECEIVE" />
@@ -21,11 +24,9 @@
     <!-- Keeps the processor from sleeping when a message is received. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="16" />
 
-    <!---
+    <!--
+     -
      Creates a custom permission so only this app can receive its messages.
 
      NOTE: the permission *must* be called PACKAGE.permission.C2D_MESSAGE,
@@ -118,6 +119,10 @@
         <activity
             android:name=".ContatosActivity"
             android:label="@string/title_activity_contatos" >
+        </activity>
+        <activity
+            android:name=".ListaContatoActivity"
+            android:label="@string/title_activity_lista_contato" >
         </activity>
     </application>
 

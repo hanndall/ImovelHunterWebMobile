@@ -4,7 +4,12 @@
     tools:context="br.com.imovelhunter.imovelhunterwebmobile.ChatActivity" >
 
     <item android:id="@+id/bloqdesbloq"
-        android:title="Bloquear"
+        android:title="Bloquear contato"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/adiciremove"
+        android:title="Adicionar contato"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

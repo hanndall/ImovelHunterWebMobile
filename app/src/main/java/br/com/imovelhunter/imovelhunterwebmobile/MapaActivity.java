@@ -86,6 +86,8 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
     private final int CLIQUE_LUPA = 4;
 
+    private final int CLIQUE_CHAT = 5;
+
     private Cliente cliente;
 
     private ImageView lupa;
@@ -295,7 +297,9 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         @Override
         public boolean onMenuItemClick(MenuItem menuItem) {
             if(netUtil.verificaInternet()){
-                //TODO criar o activyt do chat
+                Intent intent = new Intent(MapaActivity.this,ListaContatoActivity.class);
+                startActivityForResult(intent,CLIQUE_CHAT);
+                return true;
             }
 
             return false;

@@ -354,5 +354,41 @@ public class WebImp implements Web {
         }
     }
 
+    @Override
+    public Boolean usuarioEAdicionado(Usuario usuarioAdicionador, Usuario usuarioAdicionado) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.USUARIO_E_ADICIONADO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_ADICIONADO.name(),usuarioAdicionado.toString());
+        this.httpUtil.put(Parametros.USUARIO_ADICIONADOR.name(),usuarioAdicionador.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.equals("TRUE")){
+            return true;
+        }else if(resp.equals("FALSE")){
+            return false;
+        }
+        throw new MensagensException("Erro ao verificar status do contato");
+    }
+
+    @Override
+    public Boolean usuarioEBloqueado(Usuario usuarioBloqueador, Usuario usuarioBloquado) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.USUARIO_E_BLOQUEADO.name());
+
+        this.httpUtil.put(Parametros.USUARIO_BLOQUEADO.name(),usuarioBloquado.toString());
+        this.httpUtil.put(Parametros.USUARIO_BLOQUEADOR.name(),usuarioBloqueador.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.equals("TRUE")){
+            return true;
+        }else if(resp.equals("FALSE")){
+            return false;
+        }
+        throw new MensagensException("Erro ao verificar status do contato");
+    }
+
 
 }

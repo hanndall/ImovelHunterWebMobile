@@ -17,25 +17,11 @@ public class TaskEnviarMensagem extends GenericTask {
 
     @Override
     protected Object[] doInBackGround(Object... params) throws IOException, MensagensException {
+        Web web = (Web) params[0];
+        Mensagem mensagem = (Mensagem) params[1];
 
-        try {
-            Web web = (Web) params[0];
-            Mensagem mensagem = (Mensagem) params[1];
-
-            return new Object[]{web.enviarMensagem(mensagem)};
-        }
-        catch(Exception ex){
-            throw new MensagensException(ex.getMessage());
-        }
-
+        return new Object[]{web.enviarMensagem(mensagem)};
     }
 
-    public void setOnExceptionMessage(OnExceptionMessage onExceptionMessage){
-        this.onExceptionMessage = onExceptionMessage;
-    }
 
-    private OnExceptionMessage onExceptionMessage;
-    public interface OnExceptionMessage{
-        public void exception(Exception ex);
-    }
 }
