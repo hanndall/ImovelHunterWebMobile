@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Picasso;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,8 @@ import br.com.imovelhunter.web.WebImp;
 
 public class MapaActivity extends ActionBarActivity implements OnFinishTask,DialogAlerta.RespostaSim{
 
+    private double latitudeVindoDeTelaMensagem =0 ;
+    private double longitudeVindoDeTelaMensagem =0 ;
     private GoogleMap map;
 
     private LatLng latLng;
@@ -146,6 +149,21 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
 
 
+/*
+
+    latitudeVindoDeTelaMensagem = getIntent().getStringExtra("LATITUDE");
+       longitudeVindoDeTelaMensagem =  getIntent().getStringExtra("LONGITUDE");
+
+*/
+        try {
+
+            Bundle b = getIntent().getExtras();
+            latitudeVindoDeTelaMensagem = b.getDouble("LATITUDE");
+            longitudeVindoDeTelaMensagem = b.getDouble("LONGITUDE");
+
+        }catch (Exception ex){
+
+        }
 
         this.marcadores = new ArrayList<Marker>();
 
@@ -174,13 +192,28 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override
             public void onMyLocationChange(Location location) {
-                latLng = new LatLng(location.getLatitude(),location.getLongitude());
 
-                map.setOnMarkerClickListener(clicouMarcadorMapa);
+               if(latitudeVindoDeTelaMensagem!=0 && longitudeVindoDeTelaMensagem!=0){
 
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
-                map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
-                map.setOnMyLocationChangeListener(null);
+
+                    latLng = new LatLng(latitudeVindoDeTelaMensagem,longitudeVindoDeTelaMensagem);///
+
+                    latitudeVindoDeTelaMensagem =-1;
+                    longitudeVindoDeTelaMensagem=-1;
+                    map.setOnMarkerClickListener(clicouMarcadorMapa);
+
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                    map.setOnMyLocationChangeListener(null);
+                }else {
+                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                    map.setOnMarkerClickListener(clicouMarcadorMapa);
+
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+                    map.setOnMyLocationChangeListener(null);
+                }
             }
         });
 
@@ -317,12 +350,26 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             return true;
         }
     };
+//
+    private MenuItem.OnMenuItemClickListener clikMenuNotificacao = new  MenuItem.OnMenuItemClickListener(){
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        Intent intent = new Intent(MapaActivity.this,NotificationActivity.class);
+        startActivity(intent);
+        finish();//Testando aqui
+       return true;
+    }
+};
+
+
 
 
     private MenuItem menuItemLogin;
     private MenuItem menuCadastrar;
     private MenuItem menuCadastroInteresse;
     private MenuItem menuChat;
+    private MenuItem menuNotificacao;
 
 
     @Override
@@ -334,6 +381,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         this.menuCadastrar = menu.getItem(1);
         this.menuCadastroInteresse = menu.getItem(2);
         this.menuChat = menu.getItem(3);
+        this.menuNotificacao = menu.getItem(4);
 
         this.menuItemLogin.setOnMenuItemClickListener(this.clickMenuLogin);
 
@@ -341,6 +389,9 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
         this.menuChat.setOnMenuItemClickListener(this.clickMenuChat);
 
+        this.menuNotificacao.setOnMenuItemClickListener(this.clikMenuNotificacao);
+
+        this.menuNotificacao.setVisible(false);
         this.menuChat.setVisible(false);
         this.menuCadastroInteresse.setVisible(false);
 
@@ -351,6 +402,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             menuItemLogin.setTitle("DESLOGAR");
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
             menuCadastrar.setVisible(false);
+            menuNotificacao.setVisible(true);
         }
 
         return true;
@@ -372,6 +424,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             menuCadastrar.setVisible(false);
             menuChat.setVisible(true);
             menuCadastroInteresse.setVisible(true);
+            menuNotificacao.setVisible(true);
             SessionUtilJson.getInstance(this).setJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,usuarioLogado);
         }else if(requestCode == CLIQUE_TELA_CADASTRO){
             if(resultCode == 1){
