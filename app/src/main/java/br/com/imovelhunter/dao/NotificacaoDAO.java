@@ -18,7 +18,7 @@ public class NotificacaoDAO {
 
     public final static String CREATE_TABLE = "create table notificacao(_idNotificacao INTEGER PRIMARY KEY AUTOINCREMENT," +
             "rua TEXT," +
-            "date CURRENT_TIMESTAMP," +
+            "date DEFAULT CURRENT_TIMESTAMP," +
             "numero TEXT," +
             "caminhoImagem TEXT," +
             "preco REAL," +
@@ -62,9 +62,9 @@ public class NotificacaoDAO {
             database.close();
     }
 
-    public void excluir(Long id) {
+    public void excluir(int id) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        database.delete("notificacao", "_idNotificacao=?", new String[]{(Long.toString(id))});
+        database.delete("notificacao", "_idNotificacao=?", new String[]{(Integer.toString(id))});
         //testar metodo
     }
 
