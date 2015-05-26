@@ -13,13 +13,16 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import br.com.imovelhunter.adapters.AdapterNotificacao;
 import br.com.imovelhunter.dao.NotificacaoDAO;
+import br.com.imovelhunter.dialogs.DialogAlerta;
 import br.com.imovelhunter.dominio.Notificacao;
 
 
 public class NotificationActivity extends ActionBarActivity {
+
 
     ListView listView;
     NotificacaoDAO notificacaoDAO;
@@ -37,7 +40,7 @@ public class NotificationActivity extends ActionBarActivity {
 
         Notificacao ntf = new Notificacao();
         ntf.setRua("Rua vida longa");
-        ntf.setSituacao("Vennda");
+        ntf.setSituacao("Venda");
         ntf.setTipo("Casa");
         ntf.setNumero("2424");
         ntf.setPreco(7745.22);
@@ -48,6 +51,7 @@ public class NotificationActivity extends ActionBarActivity {
 
         notificacaoDAO.inserir(ntf);
         //notificacaoes.add(ntf);
+
 
         Notificacao ntf2 = new Notificacao();
         ntf2.setRua("RUa do paranaue");
@@ -71,7 +75,7 @@ public class NotificationActivity extends ActionBarActivity {
 
       //  notificacaoDAO.inserir(ntf3);
 
-
+       // notificacaoDAO.excluir(2);
 
 
      //   notificacaoDAO.excluir(ntf2.getIdNotificacao());
@@ -88,23 +92,15 @@ public class NotificationActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(NotificationActivity.this, MapaActivity.class);
-                String latitude =(Double.toString( adapter.getmNotificacoes().get(i).getLatitude()));
-                String longitude = (Double.toString(adapter.getmNotificacoes().get(i).getLongitude()));
 
 
-              //  Bundle b = new Bundle();
-              //  b.putDouble("LATITUDE",latitude);
-                //b.putDouble("LONGITUDE", longitude);
-            //    intent.putExtra("LATITUDE",latitude);
-             //   intent.putExtra("LONGITUDE",longitude);
-               // double bugsz = -34.896827;
+
                 Bundle b = new Bundle();
                 b.putDouble("LATITUDE",adapter.getmNotificacoes().get(i).getLatitude());
                 b.putDouble("LONGITUDE",adapter.getmNotificacoes().get(i).getLongitude());
 
                intent.putExtras(b);
-      //  intent.putExtra("OUTRO",bugsz);
-               // intent.putExtra();
+
                 startActivity(intent);
 
                 finish(); // Em Teste
@@ -120,7 +116,7 @@ public class NotificationActivity extends ActionBarActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
 listView.getId();
-  dialogDeletarNotificacao();
+  dialogDeletarNotificacao(i);
                 return false;
 
             }
@@ -128,7 +124,7 @@ listView.getId();
     }
 
 
-    public void dialogDeletarNotificacao(){
+    public void dialogDeletarNotificacao(final int currentItem){
 
 
 
@@ -136,9 +132,9 @@ listView.getId();
 
 
 
-            alertDialogBuilder.setTitle(this.getTitle() + " decision");
+            alertDialogBuilder.setTitle(this.getTitle() + " Deletar Notificação");
 
-            alertDialogBuilder.setMessage("Are you sure?");
+            alertDialogBuilder.setMessage("Pressione sim para excluir esta notificação");
 
             // set positive button: Yes message
 
@@ -146,12 +142,16 @@ listView.getId();
 
                 public void onClick(DialogInterface dialog, int id) {
 
+                  //  int currentItem = listView.get
+                    int  idNotificacao = adapter.getmNotificacoes().get(currentItem).getIdNotificacao();
+                    notificacaoDAO.excluir(idNotificacao);
 
-                    notificacaoDAO.excluir(adapter.getmNotificacoes().get(listView.getSelectedItemPosition()).getIdNotificacao());
-                    Toast.makeText(NotificationActivity.this, "SIM" + dialog, Toast.LENGTH_SHORT).show();
+atualizarLista();
 
-// tentando implementar funcao deletar notificacao
-//
+                  //  adapter.notifyDataSetChanged();
+                  //  listView.setAdapter(adapter);
+
+
                 }
 
 
@@ -188,6 +188,15 @@ listView.getId();
     }
 
 
+    public void atualizarLista(){
+        NotificacaoDAO notificacaoDAO = new NotificacaoDAO(getApplicationContext());
+        List<Notificacao>notificacaos = new ArrayList<Notificacao>();
+        notificacaos = notificacaoDAO.listar();
+        AdapterNotificacao adapterNotificacao = new AdapterNotificacao(notificacaos);
+      listView.setAdapter(adapterNotificacao);
+        adapterNotificacao.notifyDataSetChanged();
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -208,5 +217,11 @@ listView.getId();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+     //   atualizarLista();
     }
 }
