@@ -46,6 +46,7 @@ import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.ParametrosSessao;
 import br.com.imovelhunter.enums.ParametrosSessaoJson;
+import br.com.imovelhunter.enums.SituacaoImovel;
 import br.com.imovelhunter.listeners.OnFinishTask;
 import br.com.imovelhunter.tasks.TaskListarImoveis;
 import br.com.imovelhunter.util.GpsUtil;
@@ -220,7 +221,8 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
         if(netUtil.verificaInternet()) {
             //Manda listar todos os imoveis
-            new TaskListarImoveis(1, this).execute(this.web);
+            //new TaskListarImoveis(1, this).execute(this.web);
+            atualizarMapa();
         }else{
             this.handlerListarImoveisInicio.postDelayed(runListarImoveisInternet,5000);
         }
@@ -362,15 +364,20 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
     }
 };
 
-
-
+    private MenuItem.OnMenuItemClickListener clickMenuAtualizar = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            atualizarMapa();
+            return false;
+        }
+    };
 
     private MenuItem menuItemLogin;
     private MenuItem menuCadastrar;
     private MenuItem menuCadastroInteresse;
     private MenuItem menuChat;
     private MenuItem menuNotificacao;
-
+    private MenuItem menuAtualizar;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -382,6 +389,8 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         this.menuCadastroInteresse = menu.getItem(2);
         this.menuChat = menu.getItem(3);
         this.menuNotificacao = menu.getItem(4);
+        this.menuAtualizar = menu.getItem(5);
+
 
         this.menuItemLogin.setOnMenuItemClickListener(this.clickMenuLogin);
 
@@ -391,6 +400,8 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
         this.menuNotificacao.setOnMenuItemClickListener(this.clikMenuNotificacao);
 
+        this.menuAtualizar.setOnMenuItemClickListener((this.clickMenuAtualizar));
+
         this.menuNotificacao.setVisible(false);
         this.menuChat.setVisible(false);
         this.menuCadastroInteresse.setVisible(false);
@@ -399,7 +410,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             this.usuarioLogado = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
             this.menuChat.setVisible(true);
             this.menuCadastroInteresse.setVisible(true);
-            menuItemLogin.setTitle("DESLOGAR");
+            menuItemLogin.setTitle("Deslogar");
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
             menuCadastrar.setVisible(false);
             menuNotificacao.setVisible(true);
@@ -419,7 +430,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             }
             this.usuarioLogado = (Usuario)data.getSerializableExtra(ParametrosSessao.USUARIO_LOGADO.name());
             Toast.makeText(this,"Usuário logado com sucesso",Toast.LENGTH_LONG).show();
-            menuItemLogin.setTitle("DESLOGAR");
+            menuItemLogin.setTitle("Deslogar");
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
             menuCadastrar.setVisible(false);
             menuChat.setVisible(true);
@@ -458,8 +469,10 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
                 this.listaImovel = (List<Imovel>)data;
                 //Fazer os paranauês de jogar no mapa
                 this.map.clear();
-                for(Imovel i : this.listaImovel){
-                    this.mapImovel.put(this.addMark(i.getPontoGeografico().getLatitude(), i.getPontoGeografico().getLongitude(), i.getComplemento(), R.drawable.casinha), i);
+                for(Imovel i : this.listaImovel) {
+                    if (i.getSituacaoImovel().getNome() != SituacaoImovel.DESATIVADO.getNome()) {
+                        this.mapImovel.put(this.addMark(i.getPontoGeografico().getLatitude(), i.getPontoGeografico().getLongitude(), i.getComplemento(), R.drawable.casinha), i);
+                    }
                 }
             }
             if(responseCode == 2){
@@ -476,11 +489,16 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             SessionUtilJson.getInstance(this).removeObject(ParametrosSessaoJson.USUARIO_LOGADO);
             Toast.makeText(MapaActivity.this,"Usuário deslogou",Toast.LENGTH_LONG).show();
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogin);
-            menuItemLogin.setTitle("LOGAR");
+            menuItemLogin.setTitle("Logar");
             menuCadastrar.setVisible(true);
             menuChat.setVisible(false);
             menuCadastroInteresse.setVisible(false);
             //////////////////
         }
     }
+
+    private void atualizarMapa(){
+        new TaskListarImoveis(1,this).execute(this.web);
+    }
+
 }
