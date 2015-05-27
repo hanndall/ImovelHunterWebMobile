@@ -7,7 +7,7 @@ import br.com.imovelhunter.util.ObjetoJSON;
 
 public class Notificacao extends ObjetoJSON<Notificacao> implements Serializable{
 
-    private Long idNotificacao;
+    private int idNotificacao;
 
     private String rua;
 
@@ -96,11 +96,11 @@ public class Notificacao extends ObjetoJSON<Notificacao> implements Serializable
 
 
 
-    public long getIdNotificacao() {
+    public int getIdNotificacao() {
         return idNotificacao;
     }
 
-    public void setIdNotificacao(long idNotificacao) {
+    public void setIdNotificacao(int idNotificacao) {
         this.idNotificacao = idNotificacao;
     }
 
