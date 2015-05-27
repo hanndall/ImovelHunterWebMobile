@@ -59,10 +59,13 @@ public class AdapterMensagem extends BaseAdapter {
             if(mensagem.getUsuarioRemetente().getIdUsuario() == meuUsuario.getIdUsuario()){
                 vh.txt.setVisibility(View.INVISIBLE);
                 vh.txtMe.setVisibility(View.VISIBLE);
+                vh.txtMe.setBackgroundResource(R.drawable.bubble_a);
                 vh.txtMe.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
             }else{
+
                 vh.txt.setVisibility(View.VISIBLE);
                 vh.txtMe.setVisibility(View.INVISIBLE);
+                vh.txt.setBackgroundResource(R.drawable.bubble_b);
                 vh.txt.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
             }
 
@@ -75,10 +78,12 @@ public class AdapterMensagem extends BaseAdapter {
             if(mensagem.getUsuarioRemetente().getIdUsuario() == meuUsuario.getIdUsuario()){
                 vh.txt.setVisibility(View.INVISIBLE);
                 vh.txtMe.setVisibility(View.VISIBLE);
+                vh.txtMe.setBackgroundResource(R.drawable.bubble_a);
                 vh.txtMe.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
             }else{
                 vh.txt.setVisibility(View.VISIBLE);
                 vh.txtMe.setVisibility(View.INVISIBLE);
+                vh.txtMe.setBackgroundResource(R.drawable.bubble_b);
                 vh.txt.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
             }
 
