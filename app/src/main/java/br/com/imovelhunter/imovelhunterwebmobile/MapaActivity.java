@@ -293,6 +293,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
     /**
      * Quando clicar em um ícone do mapa
      */
+    // Diego Oliveira
     private Imovel imovelSelecionado;
     private AlertDialog.Builder builder;
     private void opcoes(){
