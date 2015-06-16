@@ -130,7 +130,6 @@ public class AdapterListPerfil extends BaseAdapter{
                     vh.qtdQuartos.setText("5 ou mais quartos");
                 }
             }
-
             if(valor != null){
                 if(locacao){
                     String stringValor = String.valueOf(valor);
