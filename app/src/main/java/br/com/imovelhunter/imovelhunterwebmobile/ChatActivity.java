@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -80,6 +81,20 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
+        //bar.hide();
+        if (bar != null) {
+            bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
+        }
+
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+
+
         GcmBroadcastReceiver.setEscutadorDeMensagem(this);
 
         this.in = getIntent();
@@ -91,6 +106,11 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         meuUsuario = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
         usuarioChatAtual = (Usuario)in.getSerializableExtra(ParametrosSessao.USUARIO_CHAT_ATUAL.name());
         this.listaMensagem = new ArrayList<Mensagem>();
+
+        if(bar != null){
+            bar.setTitle(usuarioChatAtual.getNomeUsuario());
+            //bar.setDisplayShowHomeEnabled(false); //Serve para fazer desaparecer o ícone
+        }
 
 
         List<Mensagem> mensagensDoDia = mensagemDAO.listarConversa(meuUsuario.getIdUsuario(),usuarioChatAtual.getIdUsuario());
@@ -140,12 +160,6 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
             }
         });
 
-        android.support.v7.app.ActionBar bar = getSupportActionBar();
-        bar.hide();
-        if (bar != null) {
-            bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
-        }
-
 
 
 
@@ -175,6 +189,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
     private MenuItem menuItemBloqDesbloq;
     private MenuItem menuItemAdicionarRemover;
+    private MenuItem menuItemRemoverConversa;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -183,6 +198,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
         this.menuItemBloqDesbloq = menu.getItem(0);
         this.menuItemAdicionarRemover = menu.getItem(1);
+        this.menuItemRemoverConversa = menu.getItem(2);
 
         this.menuItemBloqDesbloq.setVisible(false);
         this.menuItemAdicionarRemover.setVisible(false);
@@ -192,6 +208,8 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
         taskUsuarioEAdicionado = new TaskUsuarioEAdicionado(REQUEST_VERIFICA_ADICIONADO,this);
         taskUsuarioEAdicionado.execute(web,meuUsuario,usuarioChatAtual);
+
+        this.menuItemRemoverConversa.setOnMenuItemClickListener(this.cliqueRemoveConversa);
 
         return true;
     }
@@ -204,6 +222,27 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
     private TaskUsuarioEAdicionado taskUsuarioEAdicionado;
     private TaskUsuarioEBloqueado taskUsuarioEBloqueado;
+
+    private MenuItem.OnMenuItemClickListener cliqueRemoveConversa = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+
+            if(mensagemDAO.removerConversa(meuUsuario.getIdUsuario(),usuarioChatAtual.getIdUsuario())){
+                Toast.makeText(ChatActivity.this,"Conversa removida com sucesso",Toast.LENGTH_LONG).show();
+
+                listaMensagem.clear();
+                List<Mensagem> mensagensDoDia = mensagemDAO.listarConversa(meuUsuario.getIdUsuario(),usuarioChatAtual.getIdUsuario());
+                listaMensagem.addAll(mensagensDoDia);
+                adapterMensagem.notifyDataSetChanged();
+            }else{
+                Toast.makeText(ChatActivity.this,"Erro ao tentar remover a conversa ",Toast.LENGTH_LONG).show();
+            }
+
+            return true;
+        }
+    };
+
+
 
     private MenuItem.OnMenuItemClickListener cliqueAdicionarContato = new MenuItem.OnMenuItemClickListener() {
         @Override
@@ -281,7 +320,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
 
         mensagemO.parse(mensagemS);
 
-        mensagemO.setLida(true);
+        mensagemO.setLida(false);
 
         if(mensagemO.getUsuarioRemetente().getIdUsuario() == usuarioChatAtual.getIdUsuario()){
             listaMensagem.add(mensagemO);
@@ -310,8 +349,8 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
                     , 0);
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.imovelhunterimgicone)
-                    .setContentTitle("Imovel Hunter")
+                    .setSmallIcon(R.drawable.icone)
+                    .setContentTitle("Imovel Hunter - "+mensagemO.getUsuarioRemetente().getNomeUsuario())
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText(msg))
                     .setContentText(msg);
@@ -350,7 +389,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
                 Toast.makeText(this,(String)data,Toast.LENGTH_LONG).show();
             }
             else{
-                Toast.makeText(this,"Erro ao enviar a mensagem",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao enviar a mensagem, tente novamente",Toast.LENGTH_LONG).show();
             }
         }else if(REQUEST_BLOQUEAR_CONTATO == requestCode){
             if(responseCode == 1){
@@ -360,7 +399,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
                 Toast.makeText(this,"Contato bloqueado com successo",Toast.LENGTH_LONG).show();
             }else{
                 this.menuItemBloqDesbloq.setOnMenuItemClickListener(cliqueBloquear);
-                Toast.makeText(this,"Erro ao tentar bloquear o contato",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao bloquear o contato, tente novamente",Toast.LENGTH_LONG).show();
 
             }
 
@@ -372,11 +411,11 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
                 Toast.makeText(this,"Contato desbloqueado com sucesso",Toast.LENGTH_LONG).show();
             }else{
                 this.menuItemBloqDesbloq.setOnMenuItemClickListener(cliqueDesBloquear);
-                Toast.makeText(this,"Erro ao tentar desbloquear o contato",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao desbloquear o contato, tente novamente",Toast.LENGTH_LONG).show();
             }
         }else if(REQUEST_VERIFICA_ADICIONADO == requestCode){
             if(responseCode == 0){
-                Toast.makeText(this,"Erro ao tentar verificar se o contato já está adicionado",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao tentar verificar se o contato já está adicionado",Toast.LENGTH_LONG).show();
             }else if(responseCode == 1){
                 Boolean adicionado = (Boolean)data;
 
@@ -395,7 +434,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
             }
         }else if(REQUEST_VERIFICA_BLOQUEADO == requestCode){
             if(responseCode == 0){
-                Toast.makeText(this,"Erro ao tentar verificar se o contato já está bloqueado",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao tentar verificar se o contato já está bloqueado",Toast.LENGTH_LONG).show();
             }else if(responseCode == 1){
                 Boolean bloqueado = (Boolean)data;
 
@@ -415,7 +454,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         }else if(REQUEST_ADICIONAR_CONTATO == requestCode){
             if(responseCode == 0){
                 this.menuItemAdicionarRemover.setOnMenuItemClickListener(this.cliqueAdicionarContato);
-                Toast.makeText(this,"Erro ao tentar adicionar o contato a lista de contatos",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao tentar adicionar o contato a lista de contatos",Toast.LENGTH_LONG).show();
             }else if(responseCode == 1){
                 this.menuItemAdicionarRemover.setTitle("Remover contato");
                 this.menuItemAdicionarRemover.setOnMenuItemClickListener(this.cliqueRemoverContato);
@@ -427,7 +466,7 @@ public class ChatActivity extends ActionBarActivity implements EscutadorDeMensag
         }else if(REQUEST_REMOVER_CONTATO == requestCode){
             if(responseCode == 0){
                 this.menuItemAdicionarRemover.setOnMenuItemClickListener(this.cliqueRemoverContato);
-                Toast.makeText(this,"Erro ao tentar remover o contato da lista de contatos",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao tentar remover o contato da lista de contatos",Toast.LENGTH_LONG).show();
             }else if(responseCode == 1){
                 this.menuItemAdicionarRemover.setTitle("Adicionar contato");
                 this.menuItemAdicionarRemover.setOnMenuItemClickListener(this.cliqueAdicionarContato);

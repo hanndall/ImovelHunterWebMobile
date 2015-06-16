@@ -1,15 +1,22 @@
 package br.com.imovelhunter.imovelhunterwebmobile;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -19,188 +26,151 @@ import br.com.imovelhunter.adapters.AdapterNotificacao;
 import br.com.imovelhunter.dao.NotificacaoDAO;
 import br.com.imovelhunter.dialogs.DialogAlerta;
 import br.com.imovelhunter.dominio.Notificacao;
+import br.com.imovelhunter.dominio.Usuario;
+import br.com.imovelhunter.enums.Parametros;
+import br.com.imovelhunter.enums.ParametrosSessaoJson;
+import br.com.imovelhunter.fragments.FragmentListaContato;
+import br.com.imovelhunter.util.SessionUtilJson;
 
 
-public class NotificationActivity extends ActionBarActivity {
+public class NotificationActivity extends ActionBarActivity implements DialogAlerta.RespostaSim {
 
 
-    ListView listView;
-    NotificacaoDAO notificacaoDAO;
-    AdapterNotificacao adapter;
-    AlertDialog alerta;
+    private ListView listView;
+    private AdapterNotificacao adapter;
+    private List<Notificacao> listaNotificacaos;
+    private DialogAlerta alerta;
+
+    private Notificacao notificacaoSelecionada;
+
+    private boolean vemMap;
+
+    private Usuario usuarioLogado;
+
+    private TextView texto;
+
+    private final int REQUEST_SEGUROU_NOTIFICACAO = 1;
+
+    private NotificacaoDAO notificacaoDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_notification);
 
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
+        bar.hide();
+        if (bar != null) {
+            bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
+        }
 
-        notificacaoDAO = new NotificacaoDAO(getApplicationContext());
-        ArrayList<Notificacao> notificacaoes = new ArrayList<Notificacao>();
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
 
-        Notificacao ntf = new Notificacao();
-        ntf.setRua("Rua vida longa");
-        ntf.setSituacao("Venda");
-        ntf.setTipo("Casa");
-        ntf.setNumero("2424");
-        ntf.setPreco(7745.22);
-        ntf.setLatitude(-8.1200242);
-        ntf.setLongitude(-34.896827);
+        this.notificacaoDAO = new NotificacaoDAO(this);
 
-        ntf.setCaminhoImagem("http://gizmodo.uol.com.br/wp-content/blogs.dir/8/files/2015/05/cubos-de-comida.jpg");
+        GcmBroadcastReceiver.setOnRecebeuNotificacao(this.recebeuNotificacao);
 
-        notificacaoDAO.inserir(ntf);
-        //notificacaoes.add(ntf);
-
-
-        Notificacao ntf2 = new Notificacao();
-        ntf2.setRua("RUa do paranaue");
-        ntf2.setSituacao("Aluguel");
-        ntf2.setTipo("Apt");
-        ntf2.setNumero("87");
-        ntf2.setPreco(111.22);
-        ntf2.setLongitude(4445);
-        ntf2.setLatitude(777777);
-        ntf2.setCaminhoImagem("http://gizmodo.uol.com.br/wp-content/blogs.dir/8/files/2015/05/1258407504077605036-1260x710.jpg");
-
-      //  notificacaoDAO.inserir(ntf2);
-
-        Notificacao ntf3 = new Notificacao();
-        ntf3.setSituacao("Venda");
-        ntf3.setTipo("Cobertura");
-        ntf3.setRua("Armando monteiro perdeu");
-        ntf3.setNumero("13,");
-        ntf3.setPreco(77785.22);
-        ntf3.setCaminhoImagem("http://gizmodo.uol.com.br/wp-content/blogs.dir/8/files/2015/04/wtsg56vbh9d1ntfqsg7x-1260x579.jpg");
-
-      //  notificacaoDAO.inserir(ntf3);
-
-       // notificacaoDAO.excluir(2);
+        if(!SessionUtilJson.getInstance(this).containsName(ParametrosSessaoJson.USUARIO_LOGADO)){
+            Toast.makeText(this,"Usuário deve está logado",Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }else{
+            usuarioLogado = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
+        }
 
 
-     //   notificacaoDAO.excluir(ntf2.getIdNotificacao());
-        //  notificacaoes.add(ntf2);
-        notificacaoes.add(ntf3);
+        Intent in = getIntent();
+        vemMap = in.getBooleanExtra("map",false);
 
-        listView = (ListView) findViewById(R.id.listViewMensagem);
-       adapter = new AdapterNotificacao(notificacaoDAO.listar());
-        adapter.notifyDataSetChanged();
-        listView.setAdapter(adapter);
+        this.listaNotificacaos = new ArrayList<Notificacao>();
+        this.adapter = new AdapterNotificacao(this.listaNotificacaos);
+        this.listView = (ListView)this.findViewById(R.id.listViewMensagem);
+        this.listView.setAdapter(this.adapter);
+
+        this.texto = (TextView)this.findViewById(R.id.textView2);
 
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        List<Notificacao> list = this.notificacaoDAO.listarNotificacoesPeloUsuario(this.usuarioLogado);
+
+
+        if(list != null && list.size() > 0){
+            this.listaNotificacaos.clear();
+            this.listaNotificacaos.addAll(list);
+            this.adapter.notifyDataSetChanged();
+            this.texto.setVisibility(View.GONE);
+            this.listView.setVisibility(View.VISIBLE);
+        }else{
+            this.texto.setVisibility(View.VISIBLE);
+            this.texto.setText("Nenhuma notificação recebida");
+            this.listView.setVisibility(View.GONE);
+        }
+
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(NotificationActivity.this, MapaActivity.class);
+                Notificacao not = listaNotificacaos.get(i);
 
+                if(vemMap) {
+                    Intent in = new Intent();
 
+                    Bundle b = new Bundle();
+                    b.putDouble("LATITUDE",not.getLatitude());
+                    b.putDouble("LONGITUDE",not.getLongitude());
 
-                Bundle b = new Bundle();
-                b.putDouble("LATITUDE",adapter.getmNotificacoes().get(i).getLatitude());
-                b.putDouble("LONGITUDE",adapter.getmNotificacoes().get(i).getLongitude());
+                    in.putExtras(b);
 
-               intent.putExtras(b);
+                    setResult(1, in);
 
-                startActivity(intent);
+                    finish();
+                }else{
 
-                finish(); // Em Teste
-                // aqui vai as cordenadas do paraue imovel
+                    Intent in = new Intent(NotificationActivity.this,GcmActivity.class);
 
+                    in.putExtra(Parametros.NOTIFICACAO.name(), not);
+
+                    Bundle b = new Bundle();
+                    b.putDouble("LATITUDE",not.getLatitude());
+                    b.putDouble("LONGITUDE",not.getLongitude());
+                    b.putBoolean("vemNotificacao", true);
+                    b.putString("serial",getSerialNumber());
+
+                    in.putExtras(b);
+
+                    startActivity(in);
+
+                    finish();
+                }
             }
-
-
         });
 
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        this.listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-listView.getId();
-  dialogDeletarNotificacao(i);
-                return false;
+                notificacaoSelecionada = listaNotificacaos.get(i);
 
+                alerta = new DialogAlerta(NotificationActivity.this, "Remover notificação?", "", REQUEST_SEGUROU_NOTIFICACAO, "Sim", "Não");
+                alerta.exibirDialog();
+
+                return true;
             }
         });
-    }
-
-
-    public void dialogDeletarNotificacao(final int currentItem){
-
-
-
-            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(NotificationActivity.this);
-
-
-
-            alertDialogBuilder.setTitle(this.getTitle() + " Deletar Notificação");
-
-            alertDialogBuilder.setMessage("Pressione sim para excluir esta notificação");
-
-            // set positive button: Yes message
-
-            alertDialogBuilder.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
-
-                public void onClick(DialogInterface dialog, int id) {
-
-                  //  int currentItem = listView.get
-                    int  idNotificacao = adapter.getmNotificacoes().get(currentItem).getIdNotificacao();
-                    notificacaoDAO.excluir(idNotificacao);
-
-atualizarLista();
-
-                  //  adapter.notifyDataSetChanged();
-                  //  listView.setAdapter(adapter);
-
-
-                }
-
-
-            });
-
-            // set negative button: No message
-
-            alertDialogBuilder.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
-
-                public void onClick(DialogInterface dialog, int id) {
-
-                    // cancel the alert box and put a Toast to the user
-
-
-                    Toast.makeText(NotificationActivity.this,"Negativo"+dialog, Toast.LENGTH_LONG).show();
-
-                }
-
-            });
-
-
-
-
-
-            AlertDialog alertDialog = alertDialogBuilder.create();
-
-            // show alert
-
-            alertDialog.show();
-
-
-
 
     }
 
-
-    public void atualizarLista(){
-        NotificacaoDAO notificacaoDAO = new NotificacaoDAO(getApplicationContext());
-        List<Notificacao>notificacaos = new ArrayList<Notificacao>();
-        notificacaos = notificacaoDAO.listar();
-        AdapterNotificacao adapterNotificacao = new AdapterNotificacao(notificacaos);
-      listView.setAdapter(adapterNotificacao);
-        adapterNotificacao.notifyDataSetChanged();
-
+    @Override
+    protected void onDestroy() {
+        GcmBroadcastReceiver.setOnRecebeuNotificacao(null);
+        super.onDestroy();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_notification, menu);
+        //getMenuInflater().inflate(R.menu.menu_notification, menu);
         return true;
     }
 
@@ -222,6 +192,61 @@ atualizarLista();
     @Override
     protected void onResume() {
         super.onResume();
-     //   atualizarLista();
     }
+
+    @Override
+    public void respondeuSim(int requestCode) {
+        if(requestCode == REQUEST_SEGUROU_NOTIFICACAO){
+            if(notificacaoDAO.removerNotificacao(notificacaoSelecionada)) {
+                listaNotificacaos.remove(notificacaoSelecionada);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(this, "Notificação removida com sucesso", Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(this, "Não foi possível remover a notificação", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private String getSerialNumber(){
+        TelephonyManager telemamanger = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        String getSimSerialNumber = telemamanger.getSimSerialNumber();
+
+        if(getSimSerialNumber == null){
+            getSimSerialNumber = telemamanger.getDeviceId();
+
+            if(getSimSerialNumber == null){
+                getSimSerialNumber = Build.SERIAL;
+            }
+        }
+
+        return getSimSerialNumber;
+    }
+
+    private OnRecebeuNotificacao recebeuNotificacao = new OnRecebeuNotificacao() {
+        @Override
+        public void recebeuNotificacao() {
+
+            List<Notificacao> list = null;
+
+            list = notificacaoDAO.listarNotificacoesPeloUsuario(usuarioLogado);
+
+            if(list != null && list.size() > 0){
+                listaNotificacaos.clear();
+                listaNotificacaos.addAll(list);
+                adapter.notifyDataSetChanged();
+                texto.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+            }else{
+                listView.setVisibility(View.GONE);
+                texto.setVisibility(View.VISIBLE);
+                texto.setText("Nenhuma notificação recebida");
+            }
+            Toast.makeText(NotificationActivity.this,"Nova notificação",Toast.LENGTH_LONG).show();
+        }
+    };
+
+    public interface OnRecebeuNotificacao{
+        public void recebeuNotificacao();
+    }
+
 }

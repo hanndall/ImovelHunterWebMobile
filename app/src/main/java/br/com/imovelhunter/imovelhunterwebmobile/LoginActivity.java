@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -58,6 +59,12 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
 
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
         Intent in = getIntent();
 
         this.web = new WebImp();
@@ -66,7 +73,7 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
         serial = (String)in.getSerializableExtra(ParametrosSessao.SERIAL.name());
 
         this.progress = new ProgressDialog(this);
-        this.progress.setIcon(R.drawable.imovelhunterimgicone);
+        this.progress.setIcon(R.drawable.icone);
         this.progress.setMessage("Processando");
         this.progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -118,7 +125,7 @@ public class LoginActivity extends ActionBarActivity implements OnFinishTask {
     public void finish(int requestCode, int responseCode, Object data) {
         if(requestCode == 1){
             if(responseCode == 0){
-                Toast.makeText(this,"Erro ao fazer o login",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Falha ao fazer o login, tente novamente",Toast.LENGTH_LONG).show();
             }else if(responseCode == 1){
                 if(data != null) {
                     Usuario usuario = (Usuario)data;

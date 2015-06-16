@@ -1,4 +1,4 @@
-/*package br.com.imovelhunter.util;
+package br.com.imovelhunter.util;/*package br.com.imovelhunter.util;
 
 
 import java.util.HashMap;

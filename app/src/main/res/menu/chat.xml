@@ -13,4 +13,9 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/removeconversa"
+        android:title="Apagar conversa"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
 </menu>

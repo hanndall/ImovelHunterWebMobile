@@ -84,8 +84,8 @@ public class ManageFile {
     /**
      * Faz a leitura do arquivo
      * @return O texto lido.
-     * @throws FileNotFoundException
-     * @throws IOException
+     * @throws java.io.FileNotFoundException
+     * @throws java.io.IOException
      */
     public String ReadFile() throws FileNotFoundException, IOException {
         File textfile = new File(context.getExternalFilesDir(null),

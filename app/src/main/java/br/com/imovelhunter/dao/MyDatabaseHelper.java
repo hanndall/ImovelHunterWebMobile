@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import br.com.imovelhunter.dominio.Notificacao;
+
 /**
  * Created by BOTTOMUP 05 on 06/05/2015.
  */
@@ -12,7 +14,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "imovelhunterdb";
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 5;
 
 
 
@@ -25,7 +27,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.beginTransaction();
         database.execSQL(MensagemDAO.CREATE_TABLE);
-        database.execSQL(NotificacaoDAO.CREATE_TABLE);//
+        database.execSQL(NotificacaoDAO.CREATE_TABLE);
         database.setTransactionSuccessful();
         database.endTransaction();
     }

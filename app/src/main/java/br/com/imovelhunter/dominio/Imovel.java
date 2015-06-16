@@ -81,7 +81,9 @@ public class Imovel extends ObjetoJSON<Imovel> implements Serializable {
 
 
 	private Anunciante anunciante;
-	
+
+
+    private long idUsuarioNotificacao;
 
 	private List<Caracteristica> caracteristicas;
 	
@@ -299,6 +301,13 @@ public class Imovel extends ObjetoJSON<Imovel> implements Serializable {
 	public void setImagens(List<Imagem> imagens) {
 		this.imagens = imagens;
 	}
-	
-	
+
+
+    public long getIdUsuarioNotificacao() {
+        return idUsuarioNotificacao;
+    }
+
+    public void setIdUsuarioNotificacao(long idUsuarioNotificacao) {
+        this.idUsuarioNotificacao = idUsuarioNotificacao;
+    }
 }

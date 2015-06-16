@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">IMOVEL HUNTER</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Imóvel Hunter</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_detalhe_imovel">DetalheImovelActivity</string>
     <string name="seta_direita"><![CDATA[>>>>]]></string>
@@ -69,6 +68,8 @@
 
     <string name="title_activity_notification">NotificationActivity</string>
     <string name="minhas_notificacoes" />
+    <string name="title_activity_cadastro_perfil">Cadastro de perfil de imóvel</string>
+    <string name="title_activity_lista_perfil">Lista de perfis de imóveis</string>
 
 
 </resources>

@@ -15,24 +15,29 @@ import br.com.imovelhunter.dominio.Cliente;
 import br.com.imovelhunter.dominio.Filtro;
 import br.com.imovelhunter.dominio.Imovel;
 import br.com.imovelhunter.dominio.Mensagem;
+import br.com.imovelhunter.dominio.Perfil;
 import br.com.imovelhunter.dominio.Uf;
 import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.Requisicao;
 import br.com.imovelhunter.exceptions.MensagensException;
 import br.com.imovelhunter.util.HttpUtil;
+import br.com.imovelhunter.util.RemoverAcentuacao;
 
 public class WebImp implements Web {
 
     private HttpUtil httpUtil;
 
+    private RemoverAcentuacao removerAcentuacao;
+
     private String url = "http://ec2-54-68-17-181.us-west-2.compute.amazonaws.com/imovelhunterwebservice/servico";
-    //private String url = "http://192.168.25.11:8080/imovelhunterwebservice/servico";
+    //private String url = "http://192.168.1.3:8080/imovelhunterwebservice/servico";
 
 
     public WebImp(){
         Charset.forName("UTF-8").encode(this.url);
         this.httpUtil = new HttpUtil(this.url);
+        this.removerAcentuacao = new RemoverAcentuacao();
     }
 
     //##################
@@ -90,9 +95,16 @@ public class WebImp implements Web {
         if(resp.contains("ERRO")){
             throw new MensagensException(resp.split(";")[1]);
         }else{
-            Usuario usuario = new Usuario();
-            usuario.parse(resp);
-            return  usuario;
+            if(resp.contains("idUsuario")) {
+                Usuario usuario = new Usuario();
+                usuario.parse(resp);
+                if(usuario.getIdUsuario() == 0){
+                    throw new MensagensException("Falha ao tentar logar, tente novamente");
+                }
+                return usuario;
+            }else{
+                throw new MensagensException("Falha ao tentar logar, tente novamente");
+            }
         }
     }
 
@@ -101,7 +113,7 @@ public class WebImp implements Web {
         this.httpUtil.clear();
         this.httpUtil.put("requisicao", Requisicao.CADASTRA_CLIENTE.name());
 
-        this.httpUtil.put(Parametros.CLIENTE_JSON.name(),cliente.toString());
+        this.httpUtil.put(Parametros.CLIENTE_JSON.name(),removerAcentuacao.removerAcentos(cliente.toString()));
         this.httpUtil.put(Parametros.SERIAL_DISPOSITIVO.name(),serialDispositivo);
 
         String resp = this.httpUtil.enviarRequest();
@@ -183,7 +195,7 @@ public class WebImp implements Web {
         this.httpUtil.clear();
         this.httpUtil.put("requisicao", Requisicao.FILTRAR_IMOVEIS.name());
 
-        this.httpUtil.put(Parametros.FILTRO_JSON.name(),filtro.toString());
+        this.httpUtil.put(Parametros.FILTRO_JSON.name(),removerAcentuacao.removerAcentos(filtro.toString()));
 
         String resp = this.httpUtil.enviarRequest();
 
@@ -388,6 +400,82 @@ public class WebImp implements Web {
             return false;
         }
         throw new MensagensException("Erro ao verificar status do contato");
+    }
+
+    @Override
+    public Boolean cadastrarPerfilImovel(Perfil perfil) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.CADASTRA_PERFIL_IMOVEL.name());
+
+        this.httpUtil.put(Parametros.PERFIL_IMOVEL_JSON.name(), perfil.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+
+        if(resp.contains("OK")){
+            return true;
+        }else{
+            throw new MensagensException(resp.split(";")[1]);
+        }
+    }
+
+    @Override
+    public List<Perfil> listarPerfisCadastrados(Usuario usuarioLogado) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.LISTAR_PERFIS_CADASTRADOS.name());
+
+        this.httpUtil.put(Parametros.USUARIO_JSON.name(),usuarioLogado.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            try {
+                return (List<Perfil>)this.httpUtil.jsonArrayToList(resp,Perfil.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new MensagensException("Erro ao dar o parse da lista de perfis");
+            }
+        }
+    }
+
+    @Override
+    public Boolean removePerfilCadastrado(Perfil perfil) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.REMOVER_PERFIL_CADASTRADO.name());
+
+       this.httpUtil.put(Parametros.PERFIL_IMOVEL_JSON.name(),perfil.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+
+        if(resp.equals("TRUE")){
+            return true;
+        }else if(resp.equals("FALSE")){
+            return false;
+        }
+        throw new MensagensException("Falha ao remover perfil cadastrado");
+    }
+
+    @Override
+    public List<Imovel> listarImovelAnunciante(Anunciante anunciante) throws IOException, MensagensException {
+        this.httpUtil.clear();
+        this.httpUtil.put("requisicao", Requisicao.LISTAR_IMOVEIS_ANUNCIANTE.name());
+        this.httpUtil.put(Parametros.ANUNCIANTE_JSON.name(),anunciante.toString());
+
+        String resp = this.httpUtil.enviarRequest();
+        if(resp.contains("ERRO")){
+            throw new MensagensException(resp.split(";")[1]);
+        }else{
+            try {
+                List<Imovel> lista = (List<Imovel>)this.httpUtil.jsonArrayToList(resp,Imovel.class);
+                return lista;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new MensagensException("Erro ao dar o parse da lista de imóvel do anunciante");
+            }
+        }
     }
 
 

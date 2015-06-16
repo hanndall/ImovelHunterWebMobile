@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -82,7 +83,7 @@ public class FiltroActivity extends ActionBarActivity implements OnFinishTask{
     private final int REQUEST_FILTRAR = 4;
 
     private Button btnConfirmar;
-    private Button btnVoltar;
+
 
     private Uf uf;
     private Cidades cidade;
@@ -97,15 +98,22 @@ public class FiltroActivity extends ActionBarActivity implements OnFinishTask{
         setContentView(R.layout.activity_filtro);
 
         android.support.v7.app.ActionBar bar = getSupportActionBar();
+        //bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
+        }
+
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
 
         this.web = new WebImp();
 
 
         this.progress = new ProgressDialog(this);
-        this.progress.setIcon(R.drawable.imovelhunterimgicone);
+        this.progress.setIcon(R.drawable.icone);
         this.progress.setMessage("Processando");
 
         vAluguel =  ArrayAdapter.createFromResource(this, R.array.valores_aluguel, R.layout.spinner_item);
@@ -203,7 +211,7 @@ public class FiltroActivity extends ActionBarActivity implements OnFinishTask{
         new TaskListarUf(REQUEST_LISTAR_UF,this).execute(web);
 
         this.btnConfirmar = (Button)this.findViewById(R.id.btnConfirmar);
-        this.btnVoltar = (Button)this.findViewById(R.id.btnVoltar);
+
 
 
         this.btnConfirmar.setOnClickListener(new View.OnClickListener() {
@@ -233,12 +241,6 @@ public class FiltroActivity extends ActionBarActivity implements OnFinishTask{
             }
         });
 
-        this.btnVoltar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
     }
 

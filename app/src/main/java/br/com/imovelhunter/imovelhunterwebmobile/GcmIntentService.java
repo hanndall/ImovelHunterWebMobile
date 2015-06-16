@@ -27,11 +27,14 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import br.com.imovelhunter.dominio.Imovel;
 import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Notificacao;
+import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.Parametros;
 import br.com.imovelhunter.enums.ParametrosSessao;
-
+import br.com.imovelhunter.enums.ParametrosSessaoJson;
+import br.com.imovelhunter.util.SessionUtilJson;
 
 
 /**
@@ -54,6 +57,8 @@ public class GcmIntentService extends IntentService {
     public static final String TAG = "Aplicação gcm";
     private Mensagem mensagem;
 
+    private Usuario usuarioLogado;
+
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
@@ -62,6 +67,9 @@ public class GcmIntentService extends IntentService {
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
+        if(SessionUtilJson.getInstance(getApplicationContext()).containsName(ParametrosSessaoJson.USUARIO_LOGADO)){
+            usuarioLogado = (Usuario)SessionUtilJson.getInstance(getApplicationContext()).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
+        }
 
 
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
@@ -79,13 +87,24 @@ public class GcmIntentService extends IntentService {
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 String mensagem = extras.getString("mensagem");
 
-                Mensagem mensagemO = new Mensagem();
+                if(!mensagem.contains("idImovel")) {
+                    Mensagem mensagemO = new Mensagem();
 
-                mensagemO.parse(mensagem);
+                    mensagemO.parse(mensagem);
 
-                this.mensagem = mensagemO;
+                    this.mensagem = mensagemO;
 
-                sendNotification(mensagemO.getMensagem());
+                    this.mensagem.setLida(false);
+
+                    if(usuarioLogado != null && usuarioLogado.getIdUsuario() == this.mensagem.getUsuariosDestino().get(0).getIdUsuario()) {
+                        sendNotification(mensagemO.getMensagem());
+                    }
+                }else{
+                    Imovel imovel = new Imovel();
+                    imovel.parse(mensagem);
+                    String stringImovel = "Imovel encontrado em "+imovel.getEstado()+" - "+imovel.getBairro();
+                    sendNotificationImovel(stringImovel);
+                }
 
 
 
@@ -143,8 +162,8 @@ public class GcmIntentService extends IntentService {
                 , 0);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.imovelhunterimgicone)
-                        .setContentTitle("Imovel Hunter")
+                        .setSmallIcon(R.drawable.icone)
+                        .setContentTitle("Imovel Hunter - "+mensagem.getUsuarioRemetente().getNomeUsuario())
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);
@@ -158,6 +177,36 @@ public class GcmIntentService extends IntentService {
 
         this.vibrar();
     }
+
+
+    // Put the message into a notification and post it.
+    // This is just one simple example of what you might choose to do with
+    // a GCM message.
+    private void sendNotificationImovel(String msg) {
+        mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Intent in = new Intent(this,NotificationActivity.class);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,in
+                , 0);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.icone)
+                .setContentTitle("Imovel Hunter")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(msg))
+                .setContentText(msg);
+
+        mBuilder.setAutoCancel(true);
+
+
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+
+        this.vibrar();
+    }
+
 
     private void vibrar()
     {

@@ -11,6 +11,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import br.com.imovelhunter.dominio.Imagem;
 import br.com.imovelhunter.dominio.Notificacao;
 import br.com.imovelhunter.imovelhunterwebmobile.R;
 
@@ -62,11 +63,18 @@ public class AdapterNotificacao extends BaseAdapter {
             holder.situacao = (TextView) view.findViewById(R.id.txtItemSituacao);
             holder.tipo = (TextView) view.findViewById(R.id.txtItemTipo);
             holder.imagem = (ImageView) view.findViewById(R.id.item_imagem_imovel);
-            Picasso.with(viewGroup.getContext()).load(notificacao.getCaminhoImagem()).into(holder.imagem);
             view.setTag(holder);
 
         } else {
             holder = (ViewHolder)view.getTag();
+        }
+
+        ;
+
+        if(notificacao.getImagem() != null) {
+            Picasso.with(viewGroup.getContext()).load("http://ec2-54-68-17-181.us-west-2.compute.amazonaws.com/imovelhunterweb/servidor/imagens/" + notificacao.getImagem()).into(holder.imagem);
+        }else{
+            holder.imagem.setImageDrawable(viewGroup.getContext().getResources().getDrawable(R.drawable.icone));
         }
 
         holder.rua.setText(notificacao.getRua());
@@ -74,6 +82,7 @@ public class AdapterNotificacao extends BaseAdapter {
         holder.numero.setText(notificacao.getNumero()+" - ");
         holder.situacao.setText(notificacao.getSituacao());
         holder.preco.setText(Double.toString(notificacao.getPreco()));
+
 
         return view;
     }
@@ -87,7 +96,5 @@ public class AdapterNotificacao extends BaseAdapter {
         TextView situacao;
         TextView tipo;
         ImageView imagem;
-
-
     }
 }

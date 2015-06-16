@@ -8,19 +8,19 @@ import android.view.WindowManager;
 
 /**
  * An API 11+ implementation of {@link SystemUiHider}. Uses APIs available in
- * Honeycomb and later (specifically {@link View#setSystemUiVisibility(int)}) to
+ * Honeycomb and later (specifically {@link android.view.View#setSystemUiVisibility(int)}) to
  * show and hide the system UI.
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
     /**
-     * Flags for {@link View#setSystemUiVisibility(int)} to use when showing the
+     * Flags for {@link android.view.View#setSystemUiVisibility(int)} to use when showing the
      * system UI.
      */
     private int mShowFlags;
 
     /**
-     * Flags for {@link View#setSystemUiVisibility(int)} to use when hiding the
+     * Flags for {@link android.view.View#setSystemUiVisibility(int)} to use when hiding the
      * system UI.
      */
     private int mHideFlags;

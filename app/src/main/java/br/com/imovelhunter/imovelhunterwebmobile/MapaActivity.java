@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
@@ -39,6 +40,7 @@ import java.util.Map;
 
 import br.com.imovelhunter.adapters.MapaInfoWindowAdapter;
 import br.com.imovelhunter.dialogs.DialogAlerta;
+import br.com.imovelhunter.dominio.Anunciante;
 import br.com.imovelhunter.dominio.Cliente;
 import br.com.imovelhunter.dominio.Imovel;
 import br.com.imovelhunter.dominio.Localizacao;
@@ -59,7 +61,9 @@ import br.com.imovelhunter.web.WebImp;
 public class MapaActivity extends ActionBarActivity implements OnFinishTask,DialogAlerta.RespostaSim{
 
     private double latitudeVindoDeTelaMensagem =0 ;
+
     private double longitudeVindoDeTelaMensagem =0 ;
+
     private GoogleMap map;
 
     private LatLng latLng;
@@ -92,15 +96,27 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
     private final int CLIQUE_CHAT = 5;
 
+    private final int REQUEST_LISTA_IMOVEIS = 6;
+
+    private final int CLIQUE_NOTIFICACOES = 7;
+
+    private final int CLIQUE_CADASTRO_PERFIL = 8;
+
+    private final int CLIQUE_LISTAR_IMOVEIS = 9;
+
     private Cliente cliente;
 
     private ImageView lupa;
 
     private Usuario usuarioLogado;
 
+    private Anunciante anunciante;
+
     private NetUtil netUtil;
 
     private Handler handlerListarImoveisInicio;
+
+    private boolean vemNotificacao;
 
     //private Object usuarioLogado; definir o tipo do usuarioLogado
 
@@ -113,9 +129,22 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         setContentView(R.layout.activity_mapa);
 
         android.support.v7.app.ActionBar bar = getSupportActionBar();
+        //bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
+
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        Intent intent = getIntent();
+
+        this.vemNotificacao = intent.getBooleanExtra("vemNotificacao",false);
+
+
 
         this.netUtil = new NetUtil(this);
 
@@ -138,24 +167,11 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
         this.web = new WebImp();
 
-        Intent intent = getIntent();
-
         this.gcm = intent.getStringExtra("gcm");
         this.serial = intent.getStringExtra("serial");
 
 
-        //this.usuarioLogado = intent.getSerializableExtra("usuarioLogado"); //Depois definir o tipo de objeto usuarioLogado
-        //if(this.usuarioLogado == null){ definir o que será feito
-        //}
 
-
-
-/*
-
-    latitudeVindoDeTelaMensagem = getIntent().getStringExtra("LATITUDE");
-       longitudeVindoDeTelaMensagem =  getIntent().getStringExtra("LONGITUDE");
-
-*/
         try {
 
             Bundle b = getIntent().getExtras();
@@ -170,13 +186,9 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
 
         this.latLng = new LatLng(intent.getDoubleExtra("latitude",0.0),intent.getDoubleExtra("longitude",0.0));
 
-        //Só aparecerá o mapa após pegar a coordenada
-        //this.map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 
-        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(this.latLng, 15));
 
         this.dialog = new ProgressDialog(this);
-        //this.dialog.setIcon(getResources().getDrawable(R.drawable.ic_launcher)); definir ícone lá na hora
         this.dialog.setTitle("Processando...");
         dialog.setCancelable(false);
         this.dialog.setMessage("");
@@ -358,8 +370,10 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         Intent intent = new Intent(MapaActivity.this,NotificationActivity.class);
-        startActivity(intent);
-        finish();//Testando aqui
+
+        intent.putExtra("map",true);
+
+        startActivityForResult(intent,CLIQUE_NOTIFICACOES);
        return true;
     }
 };
@@ -372,12 +386,33 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         }
     };
 
+    private MenuItem.OnMenuItemClickListener clickMenuCadastroPerfil = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            Intent intent = new Intent(MapaActivity.this,PerfilActivity.class);
+            startActivityForResult(intent,CLIQUE_CADASTRO_PERFIL);
+            return true;
+        }
+    };
+
+    private MenuItem.OnMenuItemClickListener clickListarImoveis = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            Intent intent = new Intent(MapaActivity.this,ListaImoveisActivity.class);
+            intent.putExtra("anunciantelogado",anunciante);
+            startActivityForResult(intent, CLIQUE_LISTAR_IMOVEIS);
+            return true;
+        }
+    };
+
+
     private MenuItem menuItemLogin;
     private MenuItem menuCadastrar;
     private MenuItem menuCadastroInteresse;
     private MenuItem menuChat;
     private MenuItem menuNotificacao;
     private MenuItem menuAtualizar;
+    private MenuItem menuListarImoveis;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -390,7 +425,7 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         this.menuChat = menu.getItem(3);
         this.menuNotificacao = menu.getItem(4);
         this.menuAtualizar = menu.getItem(5);
-
+        this.menuListarImoveis = menu.getItem(6);
 
         this.menuItemLogin.setOnMenuItemClickListener(this.clickMenuLogin);
 
@@ -401,6 +436,10 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
         this.menuNotificacao.setOnMenuItemClickListener(this.clikMenuNotificacao);
 
         this.menuAtualizar.setOnMenuItemClickListener((this.clickMenuAtualizar));
+
+        this.menuCadastroInteresse.setOnMenuItemClickListener(clickMenuCadastroPerfil);
+
+        this.menuListarImoveis.setOnMenuItemClickListener(clickListarImoveis);
 
         this.menuNotificacao.setVisible(false);
         this.menuChat.setVisible(false);
@@ -414,6 +453,9 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             menuItemLogin.setOnMenuItemClickListener(clickMenuLogout);
             menuCadastrar.setVisible(false);
             menuNotificacao.setVisible(true);
+            if((anunciante = usuarioLogado.getAnunciante()) != null){
+                this.menuListarImoveis.setVisible(true);
+            }
         }
 
         return true;
@@ -437,6 +479,10 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             menuCadastroInteresse.setVisible(true);
             menuNotificacao.setVisible(true);
             SessionUtilJson.getInstance(this).setJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,usuarioLogado);
+            if((anunciante = usuarioLogado.getAnunciante()) != null){
+                this.menuListarImoveis.setVisible(true);
+            }
+
         }else if(requestCode == CLIQUE_TELA_CADASTRO){
             if(resultCode == 1){
                 cliente = (Cliente)data.getSerializableExtra("clienteCadastrado");
@@ -455,19 +501,35 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
                     this.mapImovel.put(this.addMark(i.getPontoGeografico().getLatitude(), i.getPontoGeografico().getLongitude(), i.getComplemento(), R.drawable.casinha), i);
                 }
             }
+        }else if(requestCode == CLIQUE_NOTIFICACOES){
+            if(resultCode == 1){
+                Bundle b = data.getExtras();
+                latitudeVindoDeTelaMensagem = b.getDouble("LATITUDE");
+                longitudeVindoDeTelaMensagem = b.getDouble("LONGITUDE");
+
+                latLng = new LatLng(latitudeVindoDeTelaMensagem,longitudeVindoDeTelaMensagem);///
+
+                latitudeVindoDeTelaMensagem =-1;
+                longitudeVindoDeTelaMensagem=-1;
+                map.setOnMarkerClickListener(clicouMarcadorMapa);
+
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                map.setOnMyLocationChangeListener(null);
+
+            }
         }
 
     }
 
     @Override
     public void finish(int requestCode, int responseCode, Object data) {
-        if(requestCode == 1){
+        if(requestCode == REQUEST_LISTA_IMOVEIS){
             if(responseCode == 0){
                 Toast.makeText(this,"Erro na conexão com o servidor",Toast.LENGTH_LONG).show();
             }
             if(responseCode == 1){
                 this.listaImovel = (List<Imovel>)data;
-                //Fazer os paranauês de jogar no mapa
                 this.map.clear();
                 for(Imovel i : this.listaImovel) {
                     if (i.getSituacaoImovel().getNome() != SituacaoImovel.DESATIVADO.getNome()) {
@@ -493,12 +555,14 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
             menuCadastrar.setVisible(true);
             menuChat.setVisible(false);
             menuCadastroInteresse.setVisible(false);
+            menuNotificacao.setVisible(false);
+            menuListarImoveis.setVisible(false);
             //////////////////
         }
     }
 
     private void atualizarMapa(){
-        new TaskListarImoveis(1,this).execute(this.web);
+        new TaskListarImoveis(REQUEST_LISTA_IMOVEIS,this).execute(this.web);
     }
 
 }

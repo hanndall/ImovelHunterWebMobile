@@ -17,10 +17,16 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import br.com.imovelhunter.adapters.PageViewContatosAdapter;
+import br.com.imovelhunter.dao.MensagemDAO;
 import br.com.imovelhunter.dialogs.DialogAlerta;
+import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.enums.ParametrosSessao;
 import br.com.imovelhunter.enums.ParametrosSessaoJson;
@@ -50,6 +56,8 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
 
     private FragmentListaContato fragmentListaContatoBloqueados;
 
+    private FragmentListaContato fragmentListaMensagem;
+
     private DialogAlerta dialogAlerta;
 
     private Handler handler;
@@ -68,6 +76,9 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
 
     private List<Usuario> listaContatos;
     private List<Usuario> listaBloqueados;
+    private List<Usuario> listaMensagensUsuario;
+
+    private MensagemDAO mensagemDAO;
 
     //############
     //##REQUESTS##
@@ -112,12 +123,16 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
 
+
+
         this.netUtil = new NetUtil(this);
 
         if(!this.netUtil.verificaInternet()){
             finish();
             return;
         }
+
+        this.mensagemDAO = new MensagemDAO(this);
 
         if(SessionUtilJson.getInstance(this).containsName(ParametrosSessaoJson.USUARIO_LOGADO)){
             this.usuarioLogado = (Usuario)SessionUtilJson.getInstance(this).getJsonObject(ParametrosSessaoJson.USUARIO_LOGADO,Usuario.class);
@@ -130,7 +145,7 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
         this.web = new WebImp();
 
         this.progress = new ProgressDialog(this);
-        this.progress.setIcon(R.drawable.imovelhunterimgicone);
+        this.progress.setIcon(R.drawable.icone);
         this.progress.setMessage("Processando");
         this.progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -162,6 +177,7 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
 
         this.fragmentListaContatoAdicionados = (FragmentListaContato)fm.findFragmentByTag("fragmentListaContatoAdicionados");
         this.fragmentListaContatoBloqueados = (FragmentListaContato)fm.findFragmentByTag("fragmentListaContatoBloqueados");
+        this.fragmentListaMensagem = (FragmentListaContato)fm.findFragmentByTag("fragmentListaMensagem");
 
         if(this.fragmentListaContatoAdicionados == null){
             this.fragmentListaContatoAdicionados = new FragmentListaContato();
@@ -171,14 +187,20 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
             this.fragmentListaContatoBloqueados = new FragmentListaContato();
         }
 
+        if(this.fragmentListaMensagem ==  null){
+            this.fragmentListaMensagem = new FragmentListaContato();
+        }
+
         this.fragmentListaContatoAdicionados.setOnClickItemListListener(this.onClickItemListListenerFragmentAdicionados);
         this.fragmentListaContatoAdicionados.setOnHoldItemListListener(this.onHoldItemListListenerFragmentAdicionados);
 
         this.fragmentListaContatoBloqueados.setOnClickItemListListener(this.onClickItemListListenerFragmentBloquados);
         this.fragmentListaContatoBloqueados.setOnHoldItemListListener(this.onHoldItemListListenerFragmentBloquados);
 
+        this.fragmentListaMensagem.setOnClickItemListListener(this.onClickItemListListenerFragmentMensagens);
+
         this.viewPager = (ViewPager)findViewById(R.id.pageviewcontatos);
-        this.pageViewContatosAdapter = new PageViewContatosAdapter(fm,fragmentListaContatoAdicionados,fragmentListaContatoBloqueados);
+        this.pageViewContatosAdapter = new PageViewContatosAdapter(fm,fragmentListaContatoAdicionados,fragmentListaContatoBloqueados,fragmentListaMensagem);
 
         this.viewPager.setAdapter(pageViewContatosAdapter);
         this.viewPager.setOnPageChangeListener(this);
@@ -192,6 +214,44 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
         this.taskListarContatosDoUsuario.execute(web,usuarioLogado);
         this.taskListarContatosBloqueados.execute(web,usuarioLogado);
 
+        this.mapUsuarios = new HashMap<Long,Usuario>();
+
+        GcmBroadcastReceiver.setOnMessageListener(onMessageListener);
+
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        listarMensagens();
+
+    }
+
+
+
+    private Map<Long,Usuario> mapUsuarios;
+    private void listarMensagens(){
+        this.mapUsuarios.clear();
+        List<Mensagem> mnsg = mensagemDAO.listarMensgensNaoLidas(usuarioLogado.getIdUsuario());
+
+        for(Mensagem m : mnsg){
+            mapUsuarios.put(Long.valueOf(m.getUsuarioRemetente().getIdUsuario()),m.getUsuarioRemetente());
+        }
+
+        Iterator<Long> chaves = mapUsuarios.keySet().iterator();
+        List<Usuario> usuarios = new ArrayList<Usuario>();
+        while(chaves.hasNext()){
+            Usuario u = mapUsuarios.get(chaves.next());
+            usuarios.add(u);
+        }
+
+        fragmentListaMensagem.getListaContatos().clear();
+        fragmentListaMensagem.getListaContatos().addAll(usuarios);
+        this.listaMensagensUsuario = fragmentListaMensagem.getListaContatos();
+        fragmentListaMensagem.getAdapterContatos().notifyDataSetChanged();
+        fragmentListaContatoAdicionados.getAdapterContatos().notifyDataSetChanged();
+        fragmentListaContatoBloqueados.getAdapterContatos().notifyDataSetChanged();
     }
 
     @Override
@@ -214,6 +274,9 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
         if(taskUsuarioEBloqueado != null && taskUsuarioEBloqueado.getStatus().equals(AsyncTask.Status.RUNNING)){
             taskUsuarioEBloqueado.cancel(true);
         }
+
+        GcmBroadcastReceiver.setOnMessageListener(null);
+
         super.onDestroy();
     }
 
@@ -263,6 +326,23 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
     //#####ViewPager######
     //#####################
 
+    //############
+    //##Observer##
+
+    public interface OnMensageListener{
+        public void atualizar();
+    }
+
+    private OnMensageListener onMessageListener = new OnMensageListener() {
+        @Override
+        public void atualizar() {
+            listarMensagens();
+        }
+    };
+
+    //##Observer##
+    //############
+
     //########################
     //##STARTACTIVITY RESULT##
     @Override
@@ -276,6 +356,8 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
 
             this.taskListarContatosDoUsuario.execute(web,usuarioLogado);
             this.taskListarContatosBloqueados.execute(web,usuarioLogado);
+
+            listarMensagens();
         }
 
     }
@@ -284,6 +366,19 @@ public class ListaContatoActivity extends ActionBarActivity implements ViewPager
 
     //#################################
     //##Implementações das interfaces##
+    private FragmentListaContato.OnClickItemListListener onClickItemListListenerFragmentMensagens = new FragmentListaContato.OnClickItemListListener(){
+
+        @Override
+        public void clickLista(Usuario usuario) {
+            Intent intent = new Intent(ListaContatoActivity.this,ChatActivity.class);
+            intent.putExtra(ParametrosSessao.USUARIO_CHAT_ATUAL.name(),usuario);
+            ListaContatoActivity.this.startActivityForResult(intent,REQUEST_TELA_CHAT);
+        }
+    };
+
+
+    /////////////////////////////////////
+    /////////////////////////////////////
     private FragmentListaContato.OnClickItemListListener onClickItemListListenerFragmentAdicionados = new FragmentListaContato.OnClickItemListListener(){
 
         @Override

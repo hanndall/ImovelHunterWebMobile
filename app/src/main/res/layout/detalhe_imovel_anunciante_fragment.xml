@@ -3,36 +3,31 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-
     android:weightSum="1"
-    android:background="@drawable/background">
+    android:background="@drawable/background2">
 
 
     <ScrollView
-
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-
-
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
-            <ImageView
-                android:src="@drawable/imovelhunterlogo"
-                android:layout_weight="1"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/imageView"
 
-                />
+                <ImageView
+                    android:src="@drawable/imovelhunterlogo"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    android:id="@+id/imageView"/>
 
                 <TextView
                     android:layout_width="fill_parent"
@@ -76,14 +71,14 @@
                 android:orientation="horizontal"
                 android:layout_weight="2"
                 android:background="#2C539E"
-
                 android:layout_width="fill_parent"
-                android:layout_height="0dp">
+                android:layout_height="0dp"
+                android:weightSum="1">
 
                 <TextView
                     android:textSize="25dp"
                     android:textColor="#fff"
-                    android:text="Rua Teste da Silva,"
+                    android:text="Rua Democrito de souza filho,"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:id="@+id/textViewEndereco" />
@@ -95,33 +90,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:id="@+id/textViewNumero" />
-
-
-
-
-
-
-
-
             </LinearLayout>
-
-
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_weight="1"
                 android:background="#2C539E"
-
                 android:layout_width="fill_parent"
                 android:layout_height="0dp">
 
                 <TextView
-                    android:textSize="15dp"
+
+                    android:textSize="17dp"
                     android:textColor="#fff"
-                    android:text="Boa viagem, "
+                    android:text="3 Quartos"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/textViewBairro" />
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewQuartos"
+                    android:singleLine="true"/>
 
                 <TextView
                     android:textSize="15dp"
@@ -131,10 +117,16 @@
                     android:layout_height="match_parent"
                     android:id="@+id/textViewCidade" />
 
+                <TextView
+                    android:textSize="15dp"
+                    android:textColor="#fff"
+                    android:text="Boa viagem, "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textViewBairro" />
+
 
                 <TextView
-
-
                     android:textSize="15dp"
                     android:textColor="#fff"
                     android:text="Preço :4558,00,"
@@ -142,82 +134,81 @@
                     android:layout_height="match_parent"
                     android:id="@+id/textViewPreco" />
 
-
-
-
-
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            <TextView
-
-
-                android:textSize="17dp"
-                android:textColor="#fff"
-                android:text="3 Quartos| "
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:id="@+id/textViewQuartos" />
-
-            <TextView
-
-
-                android:textSize="17dp"
-                android:textColor="#fff"
-                android:text="2 Suites| "
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:id="@+id/textViewSuites" />
-
-            <TextView
-
-
-                android:textSize="17dp"
-                android:textColor="#fff"
-                android:text="4524 M², "
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:id="@+id/textViewMetrosCubicos" />
-            <TextView
-
-
-                android:textSize="17dp"
-                android:textColor="#fff"
-                android:text="Situaçao:Venda. "
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:id="@+id/textViewSituacao" />
-            </LinearLayout>
-
-
-
-            <!-- segunda linha-->
-
-
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp">
 
             <LinearLayout
-
                 android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:padding="15dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/borda_arredondada">
+
+                <TextView
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="2 Suites "
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewSuites" />
 
                 <TextView
 
 
                     android:textSize="17dp"
                     android:textColor="#fff"
-                    android:text="8 Ambientes| "
+                    android:text="4524 M²"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewMetrosCubicos" />
+
+                <TextView
+
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="Situaçao:Venda. "
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewSituacao" />
+            </LinearLayout>
+
+            <!--Detalhes Esquerda-->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="1dp"></LinearLayout>
+
+            <LinearLayout
+
+
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:layout_weight="2"
+                android:padding="15dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/borda_arredondada">
+
+
+                <TextView
+
+
+                    android:textSize="17dp"
+                    android:textColor="#fff"
+                    android:text="8 Ambientes "
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:id="@+id/textViewAmbientes" />
 
                 <TextView
@@ -225,9 +216,9 @@
 
                     android:textSize="17dp"
                     android:textColor="#fff"
-                    android:text="2 Banheiros| "
+                    android:text="2 Banheiros "
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:id="@+id/textViewBanheiros" />
 
                 <TextView
@@ -235,14 +226,12 @@
 
                     android:textSize="17dp"
                     android:textColor="#fff"
-                    android:text="4 Salas, "
+                    android:text="4 Salas"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="right"
+                    android:layout_height="wrap_content"
                     android:id="@+id/textViewSalas" />
+
                 <TextView
-
-
                     android:textSize="17dp"
                     android:textColor="#fff"
                     android:text="Compl. "
@@ -250,67 +239,88 @@
                     android:layout_height="match_parent"
                     android:id="@+id/textViewComplemento" />
             </LinearLayout>
+        </LinearLayout>
 
-
-<TextView
-    android:layout_marginTop="10dp"
-    android:textSize="17dp"
-    android:textColor="#fff"
-    android:text="Anunciante: Israel"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/textViewAnunciante" />
-
-            <TextView
-                android:layout_marginTop="10dp"
-                android:textSize="17dp"
-                android:textColor="#fff"
-                android:text="Proprietario: Senhor Lol Matos"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/textViewProprietario" />
+                android:layout_height="wrap_content"
+                android:padding="5dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/borda_arredondada">
 
+                    <TextView
+                        android:textSize="17dp"
+                        android:textColor="#fff"
+                        android:text="Anunciante: Israel"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/textViewAnunciante" />
 
-            <TextView
-                android:layout_marginTop="10dp"
-                android:textSize="17dp"
-                android:textColor="#fff"
-                android:text="Caracteristicas "
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/textViewCaracteristicas" />
+                    <TextView
+                        android:layout_marginTop="10dp"
+                        android:textSize="17dp"
+                        android:textColor="#fff"
+                        android:text="Proprietario: Fulano de tal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/textViewProprietario" />
+
+                    <TextView
+                        android:layout_marginTop="10dp"
+                        android:textSize="17dp"
+                        android:textColor="#fff"
+                        android:text="Caracteristicas"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/textViewCaracteristicas" />
+
+                </LinearLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.4"
+                android:padding="5dp"
                 android:id="@+id/linearLayout">
 
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Ligar"
-                    android:textColor="#fff"
-                    android:id="@+id/buttonLigar"
-                    android:layout_weight="1" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Enviar mensagem"
-                    android:textColor="#fff"
-                    android:id="@+id/buttonEnviarMensagem"
-                    android:layout_weight="1"
-                    android:singleLine="false" />
+                    <Button
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Ligar"
+                        android:textColor="#fff"
+                        android:id="@+id/buttonLigar"
+                        android:layout_weight="1"
+                        android:background="@drawable/borda_arredondada"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="1dp"></LinearLayout>
+
+                    <Button
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Enviar mensagem"
+                        android:textColor="#fff"
+                        android:id="@+id/buttonEnviarMensagem"
+                        android:layout_weight="1"
+                        android:singleLine="false"
+                        android:background="@drawable/borda_arredondada"/>
+                </LinearLayout>
             </LinearLayout>
 
 
         </LinearLayout>
-
-
-
 
     </ScrollView>
 

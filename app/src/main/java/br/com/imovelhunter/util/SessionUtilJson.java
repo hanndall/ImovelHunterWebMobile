@@ -120,6 +120,93 @@ public class SessionUtilJson {
     }
 
 
+    //###########################################################################################################
+    //###########################################################################################################
+
+    public String getJsonObject(String  parametrosSessao){
+        manageFile.setFileName(parametrosSessao);
+        if(manageFile.existFile()){
+            try {
+                return manageFile.ReadFile();
+            }catch(Exception ex){
+                ex.printStackTrace();
+                return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+    public Object getJsonObject(String parametrosSessao,Class<? extends ObjetoJSON<?>> typeClass){
+        manageFile.setFileName(parametrosSessao);
+        if(manageFile.existFile()){
+            try {
+                Object objClass = typeClass.newInstance();
+                String resp = manageFile.ReadFile();
+                ((ObjetoJSON)objClass).parse(resp);
+                return objClass;
+            }catch(Exception ex){
+                ex.printStackTrace();
+                return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+    public String getJsonArrayObject(String parametrosSessao){
+        manageFile.setFileName(parametrosSessao);
+        if(manageFile.existFile()){
+            try {
+                return manageFile.ReadFile();
+            }catch(Exception ex){
+                ex.printStackTrace();
+                return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+    public List<?> getJsonArrayObject(String parametrosSessao,Class<? extends ObjetoJSON<?>> classe){
+        manageFile.setFileName(parametrosSessao);
+        if(manageFile.existFile()){
+            try {
+                String resp = manageFile.ReadFile();
+                return this.jsonArrayToList(resp,classe);
+            }catch(Exception ex){
+                ex.printStackTrace();
+                return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+
+    public void setJsonObject(String parametrosSessao,ObjetoJSON<?> objeto){
+        manageFile.setFileName(parametrosSessao);
+        manageFile.WriteFile(objeto.toString());
+    }
+
+    public void setJsonArrayObject(String parametrosSessao,List<? extends ObjetoJSON<?>> list){
+        manageFile.setFileName(parametrosSessao);
+        String string = this.listaParaJson(list);
+        manageFile.WriteFile(string);
+    }
+
+
+    public boolean containsName(String parametrosSessao){
+        manageFile.setFileName(parametrosSessao);
+        return manageFile.existFile();
+    }
+
+    public void removeObject(String parametrosSessao){
+        manageFile.setFileName(parametrosSessao);
+        manageFile.deleteFile();
+    }
+
+
 
     //##################
     //####ferramentas###

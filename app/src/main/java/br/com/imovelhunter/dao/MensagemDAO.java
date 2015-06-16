@@ -25,6 +25,7 @@ public class MensagemDAO {
             "dataDaMensagem DATETIME DEFAULT CURRENT_TIMESTAMP," +
             "idUsuarioRemetente integer not null," +
             "nomeUsuarioRemetente text not null," +
+            "serialgcmremetente text not null," +
             "idUsuarioDestinatario integer not null," +
             "lida integer not null," +
             "nomeUsuarioDestinatario text not null);";
@@ -46,6 +47,7 @@ public class MensagemDAO {
         protected final String IDUSUARIODESTINATARIO = "idUsuarioDestinatario";
         protected final String NOMEUSUARIODESTINATARIO = "nomeUsuarioDestinatario";
         protected final String LIDA = "lida";
+        protected final String SERIALGCMUSUARIOREMETENTE = "serialgcmremetente";
     }
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -81,6 +83,7 @@ public class MensagemDAO {
      */
     public boolean inserirMensagem(Mensagem mensagem){
         this.values.clear();
+        this.database = this.dbHelper.getWritableDatabase();
 
         try {
             this.values.put(atributos.MENSAGEM, mensagem.getMensagem());
@@ -93,6 +96,7 @@ public class MensagemDAO {
             this.values.put(atributos.NOMEUSUARIOREMETENTE, mensagem.getUsuarioRemetente().getNomeUsuario());
             this.values.put(atributos.IDUSUARIODESTINATARIO, mensagem.getUsuariosDestino().get(0).getIdUsuario());
             this.values.put(atributos.NOMEUSUARIODESTINATARIO, mensagem.getUsuariosDestino().get(0).getNomeUsuario());
+            this.values.put(atributos.SERIALGCMUSUARIOREMETENTE, mensagem.getUsuarioRemetente().getChaveGCM());
             this.values.put(atributos.LIDA,mensagem.getLida() ? 1 : 0);
             mensagem.setIdMensagem(this.database.insertOrThrow(TABLE_NAME,null,this.values));
 
@@ -108,26 +112,68 @@ public class MensagemDAO {
     }
 
     /**
-     * Método criado para listar as mensagens recebidas aos pouco, visando melhorar a performance da aplicação
-     * @param index
-     * @param quantidade
+     * Atualiza a mensagem no banco de dados
+     * @param mensagem
      * @return
      */
-    public List<Mensagem> listarMensagensPorRange(int index, int quantidade){
+    public boolean atualizar(Mensagem mensagem){
+        this.values.clear();
+        this.database = this.dbHelper.getWritableDatabase();
+
+        try {
+            this.values.put(atributos.MENSAGEM, mensagem.getMensagem());
+            try {
+                this.values.put(atributos.DATADAMENSAGEM, this.formatData.format(mensagem.getDataEnvio()));
+            } catch (Exception ex) {
+                Log.e("MENSAGEMDAOERRO", ex.getMessage());
+            }
+            this.values.put(atributos.IDUSUARIOREMETENTE, mensagem.getUsuarioRemetente().getIdUsuario());
+            this.values.put(atributos.NOMEUSUARIOREMETENTE, mensagem.getUsuarioRemetente().getNomeUsuario());
+            this.values.put(atributos.IDUSUARIODESTINATARIO, mensagem.getUsuariosDestino().get(0).getIdUsuario());
+            this.values.put(atributos.NOMEUSUARIODESTINATARIO, mensagem.getUsuariosDestino().get(0).getNomeUsuario());
+            this.values.put(atributos.SERIALGCMUSUARIOREMETENTE, mensagem.getUsuarioRemetente().getChaveGCM());
+            this.values.put(atributos.LIDA, mensagem.getLida() ? 1 : 0);
+
+            int linhasAfetadas = this.database.update(TABLE_NAME, values, atributos.ID + "= ?", new String[]{String.valueOf(mensagem.getIdMensagem())});
+
+            if(linhasAfetadas == -1){
+                return false;
+            }
+        }
+        catch(Exception ex){
+            Log.e("MENSAGEMDAOERRO", ex.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Lista as mensagens que não foram lidas pelo usuário ainda
+     * @param idUsuarioA
+     * @param idUsuarioB
+     * @return
+     */
+    public List<Mensagem> listarMensagensNaoLidasDaConversa(long idUsuarioA,long idUsuarioB){
         List<Mensagem> listaMensagem = new ArrayList<Mensagem>();
         Cursor cursor = null;
 
         try {
 
 
+
+
             this.database = this.dbHelper.getReadableDatabase();
 
+
+            String where = atributos.IDUSUARIODESTINATARIO+" = ? AND "+atributos.IDUSUARIOREMETENTE+" = ? AND "+atributos.LIDA+" = ?";
+
             String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
-                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE,atributos.SERIALGCMUSUARIOREMETENTE};
 
+            String argumentos[] = new String[] { String.valueOf(idUsuarioA),String.valueOf(idUsuarioB),String.valueOf(0)};
 
-
-            cursor = database.query(TABLE_NAME,colunas,null,null,null,null,atributos.ID+" DESC"," limit "+index+" offset "+quantidade);
+            cursor = database.query(TABLE_NAME,colunas,where,argumentos,null,null,null);
 
 
 
@@ -144,12 +190,14 @@ public class MensagemDAO {
                 Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                 String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
                 String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                String serialGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                 String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
                 mensagem.setLida(lida);
                 mensagem.setMensagem(mensagemS);
                 usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                 usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioRemetente.setChaveGCM(serialGcm);
                 usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                 usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                 mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -178,6 +226,7 @@ public class MensagemDAO {
                     idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                     lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                     nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    serialGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                     nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                     mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -185,6 +234,266 @@ public class MensagemDAO {
                     mensagem.setMensagem(mensagemS);
                     usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                     usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioRemetente.setChaveGCM(serialGcm);
+                    usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                    usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                    mensagem.setUsuarioRemetente(usuarioRemetente);
+                    listaUsuarioDestinatario.add(usuarioDestinatario);
+                    mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                    try{
+                        Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                        mensagem.setDataEnvio(dataMensagem);
+                    }catch (Exception ex){
+                        Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                    }
+                    listaMensagem.add(mensagem);
+                }
+
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+        }catch(Exception ex){
+            Log.e("ERROLISTAR",ex.getMessage());
+            return null;
+        }
+
+
+        return listaMensagem;
+    }
+
+    /**
+     * Listas as conversas do usuário que ainda não foram lidas
+     * @param idUsuario
+     * @return
+     */
+    public List<Mensagem> listarMensgensNaoLidas(long idUsuario){
+        List<Mensagem> listaMensagem = new ArrayList<Mensagem>();
+        Cursor cursor = null;
+
+        try {
+
+
+
+
+            this.database = this.dbHelper.getReadableDatabase();
+
+            String where = atributos.IDUSUARIODESTINATARIO+" = ? AND "+atributos.LIDA+" = ?";
+
+            String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE,atributos.SERIALGCMUSUARIOREMETENTE};
+
+            String argumentos[] = new String[] { String.valueOf(idUsuario),String.valueOf(0)};
+
+            cursor = database.query(TABLE_NAME,colunas,where,argumentos,null,null,null);
+
+
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Mensagem mensagem = new Mensagem();
+                Usuario usuarioRemetente = new Usuario();
+                Usuario usuarioDestinatario = new Usuario();
+                List<Usuario> listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                int idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
+                String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                mensagem.setLida(lida);
+                mensagem.setMensagem(mensagemS);
+                usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioRemetente.setChaveGCM(chaveGcm);
+                usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                mensagem.setUsuarioRemetente(usuarioRemetente);
+                listaUsuarioDestinatario.add(usuarioDestinatario);
+                mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                try{
+                    Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                    mensagem.setDataEnvio(dataMensagem);
+                }catch (Exception ex){
+                    Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                }
+
+                listaMensagem.add(mensagem);
+
+                while(cursor.moveToNext()){
+                    mensagem = new Mensagem();
+                    usuarioRemetente = new Usuario();
+                    usuarioDestinatario = new Usuario();
+                    listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                    mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                    idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                    idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                    lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                    nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
+                    nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                    mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                    mensagem.setLida(lida);
+                    mensagem.setMensagem(mensagemS);
+                    usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                    usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioRemetente.setChaveGCM(chaveGcm);
+                    usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                    usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                    mensagem.setUsuarioRemetente(usuarioRemetente);
+                    listaUsuarioDestinatario.add(usuarioDestinatario);
+                    mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                    try{
+                        Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                        mensagem.setDataEnvio(dataMensagem);
+                    }catch (Exception ex){
+                        Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                    }
+                    listaMensagem.add(mensagem);
+                }
+
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+        }catch(Exception ex){
+            Log.e("ERROLISTAR",ex.getMessage());
+            return null;
+        }
+
+
+        return listaMensagem;
+    }
+
+
+    /**
+     * Remove uma conversa entre usuários
+     * @param idUsuarioA
+     * @param idUsuarioB
+     * @return
+     */
+    public boolean removerConversa(long idUsuarioA, long idUsuarioB){
+        try{
+            this.database = this.dbHelper.getWritableDatabase();
+
+
+
+            String where = "("+atributos.IDUSUARIOREMETENTE+"= ? OR "+atributos.IDUSUARIOREMETENTE+"= ?) " +
+            "AND ("+atributos.IDUSUARIODESTINATARIO+"= ? OR "+atributos.IDUSUARIODESTINATARIO+"= ?)";
+
+            int result = this.database.delete(TABLE_NAME,where,new String[]{String.valueOf(idUsuarioA),String.valueOf(idUsuarioB),String.valueOf(idUsuarioA),String.valueOf(idUsuarioB)});
+
+            if(result == -1){
+                return false;
+            }
+
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Método criado para listar as mensagens recebidas aos pouco, visando melhorar a performance da aplicação
+     * @param index
+     * @param quantidade
+     * @return
+     */
+    public List<Mensagem> listarMensagensPorRange(int index, int quantidade){
+        List<Mensagem> listaMensagem = new ArrayList<Mensagem>();
+        Cursor cursor = null;
+
+        try {
+
+
+            this.database = this.dbHelper.getReadableDatabase();
+
+            String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE,atributos.SERIALGCMUSUARIOREMETENTE};
+
+
+
+            cursor = database.query(TABLE_NAME,colunas,null,null,null,null,atributos.ID+" DESC"," limit "+index+" offset "+quantidade);
+
+
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Mensagem mensagem = new Mensagem();
+                Usuario usuarioRemetente = new Usuario();
+                Usuario usuarioDestinatario = new Usuario();
+                List<Usuario> listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                int idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
+                String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                mensagem.setLida(lida);
+                mensagem.setMensagem(mensagemS);
+                usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioRemetente.setChaveGCM(chaveGcm);
+                usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
+                usuarioDestinatario.setNome(nomeUsuarioDestinatario);
+                mensagem.setUsuarioRemetente(usuarioRemetente);
+                listaUsuarioDestinatario.add(usuarioDestinatario);
+                mensagem.setUsuariosDestino(listaUsuarioDestinatario);
+
+
+                try{
+                    Date dataMensagem = formatData.parse(cursor.getString(cursor.getColumnIndex(atributos.DATADAMENSAGEM)));
+                    mensagem.setDataEnvio(dataMensagem);
+                }catch (Exception ex){
+                    Log.e("ERROCONVERTERDATAMENSA",ex.getMessage());
+                }
+
+                listaMensagem.add(mensagem);
+
+                while(cursor.moveToNext()){
+                    mensagem = new Mensagem();
+                    usuarioRemetente = new Usuario();
+                    usuarioDestinatario = new Usuario();
+                    listaUsuarioDestinatario = new ArrayList<Usuario>();
+
+                    mensagem.setIdMensagem(cursor.getInt(cursor.getColumnIndex(atributos.ID)));
+
+                    idUsuarioRemetente = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIOREMETENTE));
+                    idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
+                    lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
+                    nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
+                    nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
+                    mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
+
+                    mensagem.setLida(lida);
+                    mensagem.setMensagem(mensagemS);
+                    usuarioRemetente.setIdUsuario(idUsuarioRemetente);
+                    usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioRemetente.setChaveGCM(chaveGcm);
                     usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                     usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                     mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -244,7 +553,7 @@ public class MensagemDAO {
             String where = "("+atributos.IDUSUARIOREMETENTE+" = ? AND "+atributos.IDUSUARIODESTINATARIO+" = ? ) OR ("+atributos.IDUSUARIODESTINATARIO+" = ? AND "+atributos.IDUSUARIOREMETENTE+" = ?)";
 
             String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
-                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE,atributos.SERIALGCMUSUARIOREMETENTE};
 
             String argumentos[] = new String[] { String.valueOf(idUsuarioA),String.valueOf(idUsuarioB),String.valueOf(idUsuarioA),String.valueOf(idUsuarioB)};
 
@@ -264,6 +573,7 @@ public class MensagemDAO {
                 int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                 Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                 String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                 String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                 String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -271,6 +581,7 @@ public class MensagemDAO {
                 mensagem.setMensagem(mensagemS);
                 usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                 usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioRemetente.setChaveGCM(chaveGcm);
                 usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                 usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                 mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -299,6 +610,7 @@ public class MensagemDAO {
                     idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                     lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                     nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                     nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                     mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -306,6 +618,7 @@ public class MensagemDAO {
                     mensagem.setMensagem(mensagemS);
                     usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                     usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioRemetente.setChaveGCM(chaveGcm);
                     usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                     usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                     mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -372,7 +685,7 @@ public class MensagemDAO {
             String where = atributos.DATADAMENSAGEM+" BETWEEN ? AND ?";
 
             String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
-            .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+            .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE,atributos.SERIALGCMUSUARIOREMETENTE};
 
             String argumentos[] = new String[] { dataStringInicio,dataStringFim};
 
@@ -392,6 +705,7 @@ public class MensagemDAO {
                 int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                 Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                 String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                 String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                 String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -399,6 +713,7 @@ public class MensagemDAO {
                 mensagem.setMensagem(mensagemS);
                 usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                 usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioRemetente.setChaveGCM(chaveGcm);
                 usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                 usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                 mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -427,6 +742,7 @@ public class MensagemDAO {
                     idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                     lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                     nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                     nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                     mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -434,6 +750,7 @@ public class MensagemDAO {
                     mensagem.setMensagem(mensagemS);
                     usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                     usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioRemetente.setChaveGCM(chaveGcm);
                     usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                     usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                     mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -478,7 +795,7 @@ public class MensagemDAO {
 
 
             String[] colunas = new String[] { atributos.ID,atributos.DATADAMENSAGEM,atributos.IDUSUARIODESTINATARIO,atributos
-                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE};
+                    .IDUSUARIOREMETENTE,atributos.LIDA,atributos.MENSAGEM,atributos.NOMEUSUARIODESTINATARIO,atributos.NOMEUSUARIOREMETENTE,atributos.SERIALGCMUSUARIOREMETENTE};
 
 
 
@@ -498,6 +815,7 @@ public class MensagemDAO {
                 int idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                 Boolean lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                 String nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                String chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                 String nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                 String mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -505,6 +823,7 @@ public class MensagemDAO {
                 mensagem.setMensagem(mensagemS);
                 usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                 usuarioRemetente.setNome(nomeUsuarioRemetente);
+                usuarioRemetente.setChaveGCM(chaveGcm);
                 usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                 usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                 mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -533,6 +852,7 @@ public class MensagemDAO {
                     idUsuarioDestinatario = cursor.getInt(cursor.getColumnIndex(atributos.IDUSUARIODESTINATARIO));
                     lida = cursor.getInt(cursor.getColumnIndex(atributos.LIDA)) == 1 ? true : false;
                     nomeUsuarioRemetente = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIOREMETENTE));
+                    chaveGcm = cursor.getString(cursor.getColumnIndex(atributos.SERIALGCMUSUARIOREMETENTE));
                     nomeUsuarioDestinatario = cursor.getString(cursor.getColumnIndex(atributos.NOMEUSUARIODESTINATARIO));
                     mensagemS = cursor.getString(cursor.getColumnIndex(atributos.MENSAGEM));
 
@@ -540,6 +860,7 @@ public class MensagemDAO {
                     mensagem.setMensagem(mensagemS);
                     usuarioRemetente.setIdUsuario(idUsuarioRemetente);
                     usuarioRemetente.setNome(nomeUsuarioRemetente);
+                    usuarioRemetente.setChaveGCM(chaveGcm);
                     usuarioDestinatario.setIdUsuario(idUsuarioDestinatario);
                     usuarioDestinatario.setNome(nomeUsuarioDestinatario);
                     mensagem.setUsuarioRemetente(usuarioRemetente);
@@ -570,6 +891,9 @@ public class MensagemDAO {
 
         return listaMensagem;
     }
+
+
+
 
 
 

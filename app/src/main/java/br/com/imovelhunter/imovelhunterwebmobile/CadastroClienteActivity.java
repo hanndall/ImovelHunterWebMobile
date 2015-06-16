@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -62,8 +63,14 @@ public class CadastroClienteActivity extends ActionBarActivity implements OnFini
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
         }
 
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
         this.progress = new ProgressDialog(this);
-        this.progress.setIcon(R.drawable.imovelhunterimgicone);
+        this.progress.setIcon(R.drawable.icone);
         this.progress.setMessage("Processando");
 
         this.web = new WebImp();

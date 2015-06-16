@@ -1,5 +1,6 @@
 package br.com.imovelhunter.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import br.com.imovelhunter.dao.MensagemDAO;
 import br.com.imovelhunter.dominio.Mensagem;
 import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.imovelhunterwebmobile.R;
@@ -20,6 +22,10 @@ public class AdapterMensagem extends BaseAdapter {
     private Usuario meuUsuario;
     // teste commit!!!
     private List<Mensagem> listaMensagem;
+
+    private MensagemDAO mensagemDAO;
+
+    private Context context;
 
     public AdapterMensagem(List<Mensagem> listaMensagem,Usuario meuUsuario){
         this.listaMensagem = listaMensagem;
@@ -50,25 +56,28 @@ public class AdapterMensagem extends BaseAdapter {
         if(view == null){
             vh = new ViewHolder();
 
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mensagem, null, false);
+            if(context == null) {
+                context = parent.getContext();
+                mensagemDAO = new MensagemDAO(context);
+            }
+
+            view = LayoutInflater.from(context).inflate(R.layout.item_mensagem, null, false);
 
             vh.txt = (TextView)view.findViewById(R.id.textView);
             vh.txtMe = (TextView)view.findViewById(R.id.textViewMe);
 
 
             if(mensagem.getUsuarioRemetente().getIdUsuario() == meuUsuario.getIdUsuario()){
-                vh.txt.setVisibility(View.INVISIBLE);
-                vh.txtMe.setVisibility(View.VISIBLE);
-                vh.txtMe.setBackgroundResource(R.drawable.bubble_a);
-                vh.txtMe.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
-            }else{
-
                 vh.txt.setVisibility(View.VISIBLE);
                 vh.txtMe.setVisibility(View.INVISIBLE);
-                vh.txt.setBackgroundResource(R.drawable.bubble_b);
                 vh.txt.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
-            }
 
+            }else{
+                vh.txt.setVisibility(View.INVISIBLE);
+                vh.txtMe.setVisibility(View.VISIBLE);
+                vh.txtMe.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
+
+            }
 
 
             view.setTag(vh);
@@ -76,22 +85,29 @@ public class AdapterMensagem extends BaseAdapter {
             vh = (ViewHolder)view.getTag();
 
             if(mensagem.getUsuarioRemetente().getIdUsuario() == meuUsuario.getIdUsuario()){
-                vh.txt.setVisibility(View.INVISIBLE);
-                vh.txtMe.setVisibility(View.VISIBLE);
-                vh.txtMe.setBackgroundResource(R.drawable.bubble_a);
-                vh.txtMe.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
-            }else{
+
                 vh.txt.setVisibility(View.VISIBLE);
                 vh.txtMe.setVisibility(View.INVISIBLE);
-                vh.txtMe.setBackgroundResource(R.drawable.bubble_b);
                 vh.txt.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
+
+
+            }else{
+
+                vh.txt.setVisibility(View.INVISIBLE);
+                vh.txtMe.setVisibility(View.VISIBLE);
+                vh.txtMe.setText(mensagem.getUsuarioRemetente().getNomeUsuario()+":"+mensagem.getMensagem());
+
             }
 
-
-
-
-
         }
+
+        if(mensagemDAO != null){
+            if(!mensagem.getLida()) {
+                mensagem.setLida(true);
+                mensagemDAO.atualizar(mensagem);
+            }
+        }
+
 
 
         return view;

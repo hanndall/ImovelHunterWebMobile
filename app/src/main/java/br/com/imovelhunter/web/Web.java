@@ -12,6 +12,7 @@ import br.com.imovelhunter.dominio.Cliente;
 import br.com.imovelhunter.dominio.Filtro;
 import br.com.imovelhunter.dominio.Imovel;
 import br.com.imovelhunter.dominio.Mensagem;
+import br.com.imovelhunter.dominio.Perfil;
 import br.com.imovelhunter.dominio.Uf;
 import br.com.imovelhunter.dominio.Usuario;
 import br.com.imovelhunter.exceptions.MensagensException;
@@ -80,8 +81,8 @@ public interface Web {
      * Envia o filtro para que o servidor trate e mande a lista de imóveis encontrados
      * @param filtro
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
     List<Imovel> enviarFiltro(Filtro filtro) throws IOException, MensagensException;
 
@@ -89,8 +90,8 @@ public interface Web {
      * Busca o usuário pelo anunciante passado
      * @param anunciante
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
     Usuario buscarUsuarioPeloAnunciante(Anunciante anunciante) throws IOException, MensagensException;
 
@@ -98,8 +99,8 @@ public interface Web {
      * Envia uma mensagem para algum usuário
      * @param mensagem
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
     Boolean enviarMensagem(Mensagem mensagem) throws IOException, MensagensException;
 
@@ -109,24 +110,24 @@ public interface Web {
      * @param usuarioBloqueado
      * @return
      */
-    Boolean bloquearUsuario(Usuario usuarioBloqueador,Usuario usuarioBloqueado) throws IOException, MensagensException;
+    Boolean bloquearUsuario(Usuario usuarioBloqueador, Usuario usuarioBloqueado) throws IOException, MensagensException;
 
     /**
      * Método que serve para desbloquear um contato
      * @param usuarioBloqueador
      * @param usuarioBloqueado
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
-    Boolean desbloquearUsuario(Usuario usuarioBloqueador,Usuario usuarioBloqueado) throws IOException, MensagensException;
+    Boolean desbloquearUsuario(Usuario usuarioBloqueador, Usuario usuarioBloqueado) throws IOException, MensagensException;
 
     /**
      * Lista os contatos do usuário
      * @param usuario
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
     List<Usuario> listarContatosDoUsuario(Usuario usuario) throws IOException, MensagensException;
 
@@ -134,8 +135,8 @@ public interface Web {
      * Lista os contatos bloqueados do usuário
      * @param usuario
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
     List<Usuario> listarContatosBloqueadosDoUsuario(Usuario usuario) throws IOException, MensagensException;
 
@@ -144,41 +145,78 @@ public interface Web {
      * @param usuarioAdicionador
      * @param usuarioAdicionado
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
-    Boolean adicionarContato(Usuario usuarioAdicionador,Usuario usuarioAdicionado) throws IOException, MensagensException;
+    Boolean adicionarContato(Usuario usuarioAdicionador, Usuario usuarioAdicionado) throws IOException, MensagensException;
 
     /**
      * Método que serve para remover um contato da sua lista de contatos
      * @param usuarioRemovedor
      * @param usuarioRemovido
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
-    Boolean removerContato(Usuario usuarioRemovedor,Usuario usuarioRemovido) throws IOException, MensagensException;
+    Boolean removerContato(Usuario usuarioRemovedor, Usuario usuarioRemovido) throws IOException, MensagensException;
 
     /**
      * Método que vai verificar se um determinado usuário já está na lista de contatos
      * @param usuarioAdicionador
      * @param usuarioAdicionado
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
-    Boolean usuarioEAdicionado(Usuario usuarioAdicionador,Usuario usuarioAdicionado) throws IOException, MensagensException;
+    Boolean usuarioEAdicionado(Usuario usuarioAdicionador, Usuario usuarioAdicionado) throws IOException, MensagensException;
 
     /**
      * Método que vai verificar se um determinado usuário já está bloqueado na lista de bloqueados
      * @param usuarioBloqueador
      * @param usuarioBloquado
      * @return
-     * @throws IOException
-     * @throws MensagensException
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
      */
-    Boolean usuarioEBloqueado(Usuario usuarioBloqueador,Usuario usuarioBloquado) throws IOException, MensagensException;
+    Boolean usuarioEBloqueado(Usuario usuarioBloqueador, Usuario usuarioBloquado) throws IOException, MensagensException;
 
+
+    /**
+     * Cadastra o perfil do imóvel que o usuário está interessado
+     * @param perfil
+     * @return
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
+     */
+    Boolean cadastrarPerfilImovel(Perfil perfil)  throws IOException, MensagensException;
+
+    /**
+     * Lista os perfis cadastrados do usuário
+     * @param usuarioLogado
+     * @return
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
+     */
+    List<Perfil> listarPerfisCadastrados(Usuario usuarioLogado) throws IOException, MensagensException;
+
+    /**
+     * Remove um perfil cadastrado do usuário
+     * @param perfil
+     * @return
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
+     */
+    Boolean removePerfilCadastrado(Perfil perfil) throws IOException, MensagensException;
+
+
+    /**
+     * Lista os imóveis do anunciante
+     * @param anunciante
+     * @return
+     * @throws java.io.IOException
+     * @throws br.com.imovelhunter.exceptions.MensagensException
+     */
+    List<Imovel> listarImovelAnunciante(Anunciante anunciante) throws IOException, MensagensException;
 
 
 }

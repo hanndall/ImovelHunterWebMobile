@@ -21,4 +21,9 @@
     <item android:title="Atualizar"
         app:showAsAction="collapseActionView"
         android:id="@+id/menu_atualizar"/>
+
+    <item android:id="@+id/menu_listar_imoveis"
+        android:visible="false"
+        android:title="Listar Imóveis"/>
+
 </menu>

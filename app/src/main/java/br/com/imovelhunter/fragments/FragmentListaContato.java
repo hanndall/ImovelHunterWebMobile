@@ -27,13 +27,18 @@ public class FragmentListaContato extends Fragment{
 
     private AdapterContatos adapterContatos;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public FragmentListaContato(){
 
         this.listaContatos = new ArrayList<Usuario>();
 
         this.adapterContatos = new AdapterContatos(this.listaContatos);
+
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         setRetainInstance(true);
     }

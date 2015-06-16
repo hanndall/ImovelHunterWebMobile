@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -66,6 +67,12 @@ public class MainActivity extends ActionBarActivity implements OnFinishTask {
         bar.hide();
         if (bar != null) {
             bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#315e8a")));
+        }
+
+        if(getResources().getBoolean(R.bool.smart)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
 
         Intent intent = getIntent();

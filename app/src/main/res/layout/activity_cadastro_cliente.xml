@@ -1,21 +1,19 @@
-<FrameLayout
+<LinearLayout
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/background">
+    android:orientation="vertical"
+    android:padding="15dp"
+    android:background="@drawable/background2">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/linearLayout"
-        android:layout_gravity="center">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <TextView
                 android:layout_width="fill_parent"
@@ -23,19 +21,35 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Nome:"
                 android:id="@+id/txtNome"
-                android:textColor="#ffffffff" />
+                android:textColor="#ffffffff"
+                android:layout_gravity="left|top" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtTextNome"
+                android:textColor="#ffffffff"
+                android:layout_gravity="left|top"
+                android:singleLine="true" />
 
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Sobrenome:"
                 android:id="@+id/txtSobrenome"
                 android:layout_marginTop="10dp"
-                android:textColor="#ffffffff" />
+                android:textColor="#ffffffff"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtTextSobreNome"
+                android:textColor="#ffffffff"
+                android:singleLine="true"/>
 
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -43,8 +57,15 @@
                 android:id="@+id/txtLogin"
                 android:textColor="#ffffffff" />
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtTxtLogin"
+                android:textColor="#ffffffff"
+                android:singleLine="true"/>
+
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -52,8 +73,16 @@
                 android:id="@+id/txtSenha"
                 android:textColor="#ffffffff" />
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtTxtSenha"
+                android:inputType="textPassword"
+                android:textColor="#ffffffff"
+                android:singleLine="true"/>
+
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -61,8 +90,16 @@
                 android:id="@+id/txtConfSenha"
                 android:textColor="#ffffffff" />
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edTxtConfirmarSenha"
+                android:inputType="textPassword"
+                android:textColor="#ffffffff"
+                android:singleLine="true"/>
+
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -70,8 +107,16 @@
                 android:id="@+id/txtEmail"
                 android:textColor="#ffffffff" />
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtTxtEmail"
+                android:inputType="textEmailAddress"
+                android:textColor="#ffffffff"
+                android:singleLine="true"/>
+
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -79,67 +124,22 @@
                 android:id="@+id/txtDtNascimento"
                 android:textColor="#ffffffff" />
 
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Cadastrar"
-                android:id="@+id/buttonCadastrarCliente"
-                android:textColor="#ffffffff" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtTextNome"
-                android:textColor="#ffffffff" />
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtTextSobreNome"
-                android:textColor="#ffffffff" />
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtTxtLogin"
-                android:textColor="#ffffffff" />
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtTxtSenha"
-                android:inputType="textPassword"
-                android:textColor="#ffffffff" />
-
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/edTxtConfirmarSenha"
-                android:inputType="textPassword"
-                android:textColor="#ffffffff" />
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtTxtEmail"
-                android:inputType="textEmailAddress"
-                android:textColor="#ffffffff" />
-
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/edtTxtDataNascimento"
                 android:inputType="date"
-                android:textColor="#ffffffff" />
+                android:textColor="#ffffffff"
+                android:singleLine="true"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cadastrar"
+                android:id="@+id/buttonCadastrarCliente"
+                android:textColor="#ffffffff"
+                android:background="@drawable/borda_arredondada"/>
+
         </LinearLayout>
-    </LinearLayout>
-
-
-</FrameLayout>
+    </ScrollView>
+</LinearLayout>

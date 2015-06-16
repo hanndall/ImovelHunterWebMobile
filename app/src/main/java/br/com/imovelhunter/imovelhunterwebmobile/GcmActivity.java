@@ -68,6 +68,11 @@ public class GcmActivity extends ActionBarActivity{
 
     String regid;
 
+    private double longi = 0;
+    private double lat = 0;
+    private String serial = null;
+    private boolean vemNotificacao = false;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,9 +89,14 @@ public class GcmActivity extends ActionBarActivity{
         android.support.v7.app.ActionBar bar = getSupportActionBar();
         bar.hide();
 
-        //if (bar != null) {
-        //    bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF9305")));
-        //}
+        Intent inn = getIntent();
+
+        this.vemNotificacao = inn.getBooleanExtra("vemNotificacao",false);
+        if(vemNotificacao){
+            serial = inn.getStringExtra("serial");
+            longi = inn.getDoubleExtra("LONGITUDE",0);
+            lat = inn.getDoubleExtra("LATITUDE",0);
+        }
 
         context = getApplicationContext();
 
@@ -99,13 +109,26 @@ public class GcmActivity extends ActionBarActivity{
                 registerInBackground();
             }else{
                 //Manda a chave para a outra intent
-                Intent in = new Intent(this,MainActivity.class);
+                if(!vemNotificacao) {
+                    Intent in = new Intent(this, MainActivity.class);
 
-                in.putExtra("gcm",regid);
+                    in.putExtra("gcm", regid);
 
-                startActivity(in);
+                    startActivity(in);
 
-                finish();
+                    finish();
+                }else{
+                    Intent in = new Intent(this, MapaActivity.class);
+
+                    in.putExtra("gcm", regid);
+                    in.putExtra("vemNotificacao",true);
+                    in.putExtra("LATITUDE",lat);
+                    in.putExtra("LONGITUDE",longi);
+                    in.putExtra("serial",serial);
+                    startActivity(in);
+
+                    finish();
+                }
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
@@ -225,13 +248,26 @@ public class GcmActivity extends ActionBarActivity{
             protected void onPostExecute(String msg) {
 
                 //Manda a chave para a outra intent
-                Intent in = new Intent(GcmActivity.this,MainActivity.class);
+                if(!vemNotificacao) {
+                    Intent in = new Intent(GcmActivity.this, MainActivity.class);
 
-                in.putExtra("gcm",msg);
+                    in.putExtra("gcm", regid);
 
-                startActivity(in);
+                    startActivity(in);
 
-                finish();
+                    finish();
+                }else{
+                    Intent in = new Intent(GcmActivity.this, MapaActivity.class);
+
+                    in.putExtra("gcm", regid);
+                    in.putExtra("vemNotificacao",true);
+                    in.putExtra("LATITUDE",lat);
+                    in.putExtra("LONGITUDE",longi);
+                    in.putExtra("serial",serial);
+                    startActivity(in);
+
+                    finish();
+                }
 
 
             }

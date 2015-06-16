@@ -4,7 +4,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:background="@drawable/background"
+    android:background="@drawable/background2"
     tools:context="br.com.imovelhunter.imovelhunterwebmobile.FiltrosActivity">
 
     <ScrollView
@@ -233,7 +233,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Voltar"
-                    android:id="@+id/btnVoltar"
+                    android:id="@+id/btnvoltarfiltro"
                     android:height="1dp"
 
 
