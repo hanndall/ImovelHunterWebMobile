@@ -2,8 +2,10 @@ package br.com.imovelhunter.imovelhunterwebmobile;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -11,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -290,28 +293,48 @@ public class MapaActivity extends ActionBarActivity implements OnFinishTask,Dial
     /**
      * Quando clicar em um ícone do mapa
      */
+    private Imovel imovelSelecionado;
+    private AlertDialog.Builder builder;
+    private void opcoes(){
+        CharSequence opcoes [] = new CharSequence[] {"Detalhes", "GPS"};
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Opções");
+        builder.setItems(opcoes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                System.out.println(which);
+                if(which == 0) {
+
+                    Intent intent = new Intent(MapaActivity.this, DetalheImovelActivity.class);
+
+                    intent.putExtra(ParametrosSessao.IMOVEL_SELECIONADO.name(), imovelSelecionado);
+
+                    startActivityForResult(intent, CLIQUE_MARCADOR);
+                }
+                if(which == 1){
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" +
+                            "&daddr=" + String.valueOf(imovelSelecionado.getPontoGeografico().getLatitude()) + ","
+                            + String.valueOf(imovelSelecionado.getPontoGeografico().getLongitude())));
+                    startActivity(intent);
+                }
+            }
+        });
+        builder.show();
+    }
+
     private GoogleMap.OnMarkerClickListener clicouMarcadorMapa = new GoogleMap.OnMarkerClickListener() {
 
         @Override
         public boolean onMarkerClick(Marker marker) {
 
             if(netUtil.verificaInternet()) {
-                Imovel imovelSelecionado = mapImovel.get(marker);
-
-                Intent intent = new Intent(MapaActivity.this, DetalheImovelActivity.class);
-
-                intent.putExtra(ParametrosSessao.IMOVEL_SELECIONADO.name(), imovelSelecionado);
-
-                startActivityForResult(intent, CLIQUE_MARCADOR);
-
+                imovelSelecionado = mapImovel.get(marker);
+                opcoes();
                 return false;
             }
             return false;
         }
-
     };
-
-
 
     private MenuItem.OnMenuItemClickListener clickMenuLogin = new MenuItem.OnMenuItemClickListener() {
         @Override
