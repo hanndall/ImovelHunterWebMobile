@@ -2,6 +2,9 @@ package br.com.imovelhunter.imovelhunterwebmobile;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -185,8 +188,6 @@ public class DetalheImovelActivity extends ActionBarActivity implements OnFinish
 
     }
 
-
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
 
@@ -220,7 +221,6 @@ public class DetalheImovelActivity extends ActionBarActivity implements OnFinish
     private View.OnClickListener clickBotaoLigar = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
             ligarProAnunciante();
         }
     };
